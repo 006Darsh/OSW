@@ -3,7 +3,7 @@ const sendMail = require("./mailService");
 
 exports.sendLink = async (email, _id, resetToken, expirationTime) => {
   // send mail using sendMail service
-  const link = `http://localhost:4000/user/reset-password/${_id}/${resetToken}/${expirationTime}`;
+  const link = `http://localhost:4000/user/reset-password?_id=${_id}&resetToken=${resetToken}&expirationTime=${expirationTime}`;
   try {
     const mailRes = await sendMail(
       (to = email),
