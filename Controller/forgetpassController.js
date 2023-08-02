@@ -18,6 +18,7 @@ exports.UserSendLink = async (req, res) => {
     // Generate a one-time reset token with expiration time (e.g., 2 hours)
     const resetToken = crypto.randomBytes(32).toString("hex");
     const expirationTime = moment().add(2, "hours").unix(); // Expiration time in Unix timestamp format
+    user.resetTokenUsed = false;
     user.resetToken = resetToken;
     user.resetTokenExpiration = expirationTime;
     await user.save();
@@ -50,6 +51,7 @@ exports.resetPassword = async (req, res) => {
       message: "User Not Found.",
     });
   }
+
   // Check if the reset token and its expiration time are valid
   const resetToken = req.params.resetToken;
   const expirationTime = req.params.expirationTime;
@@ -57,6 +59,14 @@ exports.resetPassword = async (req, res) => {
     return res.status(400).send({
       success: false,
       message: "Reset token is invalid or has expired.",
+    });
+  }
+
+  // Check if the token has already been used
+  if (user.resetTokenUsed) {
+    return res.status(400).send({
+      success: false,
+      message: "Reset token has already been used.",
     });
   }
 
@@ -72,10 +82,11 @@ exports.resetPassword = async (req, res) => {
     // Hash the new password before saving it to the database
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Update the user's password and remove the resetToken and resetTokenExpiration
+    // Update the user's password and mark the reset token as used
     user.password = hashedPassword;
     user.resetToken = undefined;
     user.resetTokenExpiration = undefined;
+    user.resetTokenUsed = true;
     await user.save();
 
     res

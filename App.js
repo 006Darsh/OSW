@@ -27,6 +27,7 @@ app.use(logger("dev"));
 
 require("./Routes/AuthRoutes")(app);
 require("./Routes/VerfiyRoutes")(app);
+require("./Routes/ProfileRoutes")(app);
 
 app.listen(PORT, () => {
   console.log(`Server listening on : http://localhost:${PORT}`);

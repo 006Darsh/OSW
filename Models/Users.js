@@ -15,6 +15,10 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  verified: {
+    type: Boolean,
+    default: false,
+  },
   profile: {
     first_name: {
       type: String,
@@ -31,6 +35,9 @@ const UserSchema = mongoose.Schema({
   },
   resetTokenExpiration: {
     type: Number,
+  },
+  resetTokenUsed: {
+    type: Boolean,
   },
 });
 const User = mongoose.model("User", UserSchema);
