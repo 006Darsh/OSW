@@ -1,11 +1,12 @@
 const User = require("../Models/Users");
-
+const fs = require("fs");
 exports.AddUserProfile = async (req, res) => {
   try {
     const UserId = req.user._id;
-    const { user_name, first_name, last_name } = req.body;
+    const { user_name, first_name, last_name, email } = req.body;
     let updatedFields = {
       user_name,
+      email,
       "profile.first_name": first_name,
       "profile.last_name": last_name,
     };
@@ -50,7 +51,6 @@ exports.getUserProfile = async (req, res) => {
       },
       is_verified: user.verified,
     };
-
     res.status(200).json({
       success: true,
       data: responseData,
@@ -61,11 +61,7 @@ exports.getUserProfile = async (req, res) => {
 };
 
 exports.uploadProfilePic = async (req, res) => {
-  // console.log(req.userType);
-  // if (req.userType !== "company") {
-  //   return res.status(401).json({ success: false, message: "Not Authorized." });
-  // }
-
+  // console.log(req.fileUrl);
   if (!req.fileUrl) {
     return res
       .status(400)

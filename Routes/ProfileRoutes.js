@@ -6,13 +6,13 @@ const {
 } = require("../Controller/ProfileController");
 const AuthMiddleware = require("../Middlewares/AuthMiddleware");
 const fileUploaderMiddleware = require("../Middlewares/fileUploaderMiddleware");
-const picUploaderMiddleware = fileUploaderMiddleware("Pic");
+const picUploaderMiddleware = fileUploaderMiddleware("pic");
 
 const ProfileRoutes = (app) => {
   app.post("/user/addprofile", AuthMiddleware, AddUserProfile);
   app.get("/user/profile/:id", getUserProfile);
   app.post(
-    "/user/upload-pic/:id",
+    "/user/upload-pic",
     AuthMiddleware,
     picUploaderMiddleware,
     uploadProfilePic

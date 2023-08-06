@@ -1,3 +1,4 @@
+const { AdminSignup, AdminLogin } = require("../Controller/AdminAuthController");
 const { UserSignup,UserLogin } = require("../Controller/AuthController");
 const { UserSendLink, resetPassword } = require("../Controller/forgetpassController");
 
@@ -9,6 +10,8 @@ const AuthRoutes = (app) => {
     "/user/reset-password/:_id/:resetToken/:expirationTime",
     resetPassword
   );
+  app.post("/admin/signup", AdminSignup);
+  app.post("/admin/login", AdminLogin);
 };
 
 module.exports = AuthRoutes;
