@@ -10,15 +10,7 @@ const AdminSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  resetToken: {
-    type: String,
-  },
-  resetTokenExpiration: {
-    type: Number,
-  },
-  resetTokenUsed: {
-    type: Boolean,
-  },
+  
 });
 const Admin = mongoose.model("Admin", AdminSchema);
 module.exports = Admin;

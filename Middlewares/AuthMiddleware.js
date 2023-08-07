@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const jwt_sec = process.env.JWT_SEC;
 const User = require("../Models/Users");
+const Admin = require("../Models/Admin");
 
 module.exports = async (req, res, next) => {
   const token = req.header("authorization");
@@ -34,7 +35,21 @@ module.exports = async (req, res, next) => {
             .status(401)
             .json({ success: false, message: "Not Authorized." });
         }
-
+      case "admin":
+        try {
+          const admin = await Admin.find({ _id }, { _id: 1 });
+          console.warn("admin ", admin);
+          if (admin) {
+            req.user = admin[0];
+            req.userType = "admin";
+            break;
+          }
+          throw new Error("Unauthorized");
+        } catch (error) {
+          return res
+            .status(401)
+            .json({ success: false, message: "Not Authorized." });
+        }s
       default:
         return res
           .status(401)

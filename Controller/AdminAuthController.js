@@ -22,8 +22,8 @@ exports.AdminSignup = async (req, res) => {
       });
     }
     // Encrypt the password using bcrypt
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, 10);
     // Save the admin data to the Admin schema
     const newAdmin = new Admin({
       email: email,
