@@ -29,6 +29,9 @@ const SpeakerSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin",
   },
+  pic: {
+    type:String,
+  },
 });
 
 const Speaker = mongoose.model("Speaker", SpeakerSchema);

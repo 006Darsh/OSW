@@ -11,6 +11,12 @@ const fileUploaderMiddleware = (fileType) => {
     case "media":
       directory = `uploads/post_media`;
       break;
+    case "team":
+      directory = `uploads/teams_pic`;
+      break;
+    case "speaker":
+      directory = `uploads/speaker_pic`;
+      break;
     default:
       break;
   }

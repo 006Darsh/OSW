@@ -69,6 +69,7 @@ exports.uploadProfilePic = async (req, res) => {
   }
 
   const fileUrl = req.fileUrl;
+  console.log(fileUrl);
 
   try {
     const userId = req.user._id;

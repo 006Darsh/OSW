@@ -24,6 +24,12 @@ exports.AddSpeakers = async (req, res) => {
       about,
       social_links,
     } = req.body;
+    const fileUrl = req.fileUrl;
+    if (!fileUrl) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No file uploaded" });
+    }
     if (
       !name ||
       !post ||
@@ -49,6 +55,7 @@ exports.AddSpeakers = async (req, res) => {
       "location.pincode": pincode,
       about,
       social_links,
+      pic: fileUrl,
       added_by: Id,
     });
     await newSpeaker.save();
@@ -79,9 +86,38 @@ exports.getallSpeakers = async (req, res) => {
         about: 1,
         social_links: 1,
         sessions: 1,
+        pic: 1,
       }
     );
     return res.status(200).send({ success: true, speakers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+exports.getspeakerDetails = async (req, res) => {
+  try {
+    const speakerId = req.params.id;
+    const speaker = await Speaker.findById(speakerId);
+    if (!speaker) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+    const responseData = {
+      name: speaker.name,
+      post: speaker.post,
+      university: speaker.university,
+      location: speaker.location,
+      about: speaker.about,
+      social_links: speaker.social_links,
+      sessions: speaker.sessions,
+      pic: speaker.pic,
+    };
+    res.status(200).json({
+      success: true,
+      data: responseData,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal server error." });
   }

@@ -19,7 +19,9 @@ const TeamSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin",
   },
+  pic: {
+    type: String,
+  },
 });
 const Team = mongoose.model("Team", TeamSchema);
 module.exports = Team;
-
