@@ -8,8 +8,8 @@ const fileUploaderMiddleware = (fileType) => {
     case "pic":
       directory = `uploads/pics`;
       break;
-    case "media":
-      directory = `uploads/post_media`;
+    case "blog":
+      directory = `uploads/blog`;
       break;
     case "team":
       directory = `uploads/teams_pic`;
