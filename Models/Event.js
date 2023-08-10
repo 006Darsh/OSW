@@ -8,7 +8,7 @@ const EventSchema = mongoose.Schema({
     type: String,
   },
   language: {
-    tpe: String,
+    type: String,
   },
   event_poster: {
     type: String,
@@ -17,10 +17,10 @@ const EventSchema = mongoose.Schema({
     type: Date,
   },
   startTime: {
-    type: String,
+    type: Date,
   },
   endTime: {
-    type: String,
+    type: Date,
   },
   timeZone: {
     type: String,
@@ -66,6 +66,12 @@ const EventSchema = mongoose.Schema({
   hosted_by_admin: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin",
+  },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+  happened: {
+    type: Boolean,
+    default: false,
   },
 });
 

@@ -89,7 +89,7 @@ exports.GetPersonalBlogs = async (req, res) => {
       const blogData = {
         ...blog._doc,
       };
-      if (blog.user_author) {
+      if (blog.admin_author) {
         blogData.admin_author = "Admin";
       }
       return blogData;
@@ -144,7 +144,7 @@ exports.GetBlogs = async (req, res) => {
       const blogData = {
         ...blog._doc,
       };
-      if (blog.user_author) {
+      if (blog.admin_author) {
         blogData.admin_author = "Admin";
       }
       return blogData;
