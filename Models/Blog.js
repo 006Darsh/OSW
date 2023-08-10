@@ -9,9 +9,13 @@ const BlogSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  author: {
+  user_author: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User" || "Admin",
+    ref: "User",
+  },
+  admin_author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

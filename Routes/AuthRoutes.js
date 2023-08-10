@@ -20,11 +20,11 @@ const AuthRoutes = (app) => {
     "/user/reset-password/:_id/:resetToken/:expirationTime",
     resetPassword
   );
-  app.post("/admin/signup", AdminSignup);
-  app.post("/admin/login", AdminLogin);
-  app.post("/admin/forgotpassword", AdminForgotPassword);
-  app.post("/admin/templogin", OtpLogin);
-  app.post("/admin/resetPassword", AuthMiddleware, adminResetPassword);
+  // app.post("/admin/signup", AdminSignup);
+  // app.post("/admin/login", AdminLogin);
+  // app.post("/admin/forgotpassword", AdminForgotPassword);
+  // app.post("/admin/templogin", OtpLogin);
+  // app.post("/admin/resetPassword", AuthMiddleware, adminResetPassword);
 };
 
 module.exports = AuthRoutes;

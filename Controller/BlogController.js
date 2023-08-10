@@ -1,14 +1,20 @@
 const Blog = require("../Models/Blog");
 
-
 exports.GetBlogById = async (req, res) => {
   const blogId = req.params.id;
 
   try {
-    const blog = await Blog.findById(blogId).populate({
-      path: "author",
-      select: "profile.first_name profile.last_name profile.profile_pic",
-    });
+    let blog;
+    if (req.userType === "user") {
+      blog = await Blog.findById(blogId).populate({
+        path: "user_author",
+        select: "profile.first_name profile.last_name profile.profile_pic",
+      });
+    } else {
+      blog = await Blog.findById(blogId).populate({
+        path: "admin_author",
+      });
+    }
 
     if (!blog) {
       console.warn("here");
@@ -17,36 +23,43 @@ exports.GetBlogById = async (req, res) => {
         .json({ success: false, message: "Blog not found !!" });
     }
 
-    const blogData = {
-      ...blog._doc,
-      author: blog.author.profile.first_name + blog.author.profile.last_name,
-      profile_pic: blog.author.profile.profile_pic,
-    };
-
-    // console.log(postData);
-
-    res.status(200).json({ success: true, blogData });
-  } catch (err) {
-    console.error(err);
+    if (req.userType === "user") {
+      const blogData = {
+        ...blog._doc,
+        user_author:
+          blog.user_author.profile.first_name +
+          " " +
+          blog.user_author.profile.last_name,
+        profile_pic: blog.user_author.profile.profile_pic,
+      };
+      res.status(200).json({ success: true, blogData });
+    } else {
+      const blogData = {
+        ...blog._doc,
+        admin_author: "Admin",
+      };
+      res.status(200).json({ success: true, blogData });
+    }
+  } catch (error) {
     return res
       .status(500)
       .json({ success: false, message: "Internal server error." });
   }
 };
 
-exports.GetBlogs = async (req, res) => {
+exports.GetPersonalBlogs = async (req, res) => {
   try {
-    const blogs =
-      //   req.userType !== "ngo"
-      //         ?
-      await Blog.find().populate({
-        path: "author",
+    let blogs;
+    if (req.userType === "user") {
+      blogs = await Blog.find({ user_author: req.user._id }).populate({
+        path: "user_author",
         select: "profile.first_name profile.last_name profile.profile_pic",
       });
-    // : await Blog.find({ author: req.user._id }).populate({
-    //     path: "author",
-    //     select: "profile.first_name profile.last_name profile.profile_pic",
-    //   });
+    } else {
+      blogs = await Blog.find({ admin_author: req.user._id }).populate({
+        path: "admin_author",
+      });
+    }
 
     if (!blogs) {
       return res
@@ -55,18 +68,88 @@ exports.GetBlogs = async (req, res) => {
     }
 
     // console.log(blogs[0].author);
+    if (req.userType === "user") {
+      const blogsData = blogs.map((blog) => {
+        const blogData = {
+          ...blog._doc,
+        };
 
+        if (blog.user_author) {
+          blogData.user_author =
+            blog.user_author.profile.first_name +
+            " " +
+            blog.user_author.profile.last_name;
+          blogData.profile_pic = blog.user_author.profile.profile_pic;
+        }
+        return blogData;
+      });
+      return res.status(200).json({ success: true, blogsData });
+    }
     const blogsData = blogs.map((blog) => {
       const blogData = {
         ...blog._doc,
-        author: blog.author.profile.first_name + blog.author.profile.last_name,
-        profile_pic: blog.author.profile.profile_pic,
       };
+      if (blog.user_author) {
+        blogData.admin_author = "Admin";
+      }
       return blogData;
     });
-
     console.log(blogsData);
+    return res.status(200).json({ success: true, blogsData });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
 
+exports.GetBlogs = async (req, res) => {
+  try {
+    let blogs;
+    if (req.userType === "user") {
+      blogs = await Blog.find().populate({
+        path: "user_author",
+        select: "profile.first_name profile.last_name profile.profile_pic",
+      });
+    } else {
+      blogs = await Blog.find().populate({
+        path: "admin_author",
+      });
+    }
+
+    if (!blogs) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No blogs found !!" });
+    }
+
+    // console.log(blogs[0].author);
+    if (req.userType === "user") {
+      const blogsData = blogs.map((blog) => {
+        const blogData = {
+          ...blog._doc,
+        };
+
+        if (blog.user_author) {
+          blogData.user_author =
+            blog.user_author.profile.first_name +
+            " " +
+            blog.user_author.profile.last_name;
+          blogData.profile_pic = blog.user_author.profile.profile_pic;
+        }
+        return blogData;
+      });
+      return res.status(200).json({ success: true, blogsData });
+    }
+    const blogsData = blogs.map((blog) => {
+      const blogData = {
+        ...blog._doc,
+      };
+      if (blog.user_author) {
+        blogData.admin_author = "Admin";
+      }
+      return blogData;
+    });
+    console.log(blogsData);
     return res.status(200).json({ success: true, blogsData });
   } catch (err) {
     console.error(err);
@@ -76,12 +159,6 @@ exports.GetBlogs = async (req, res) => {
 
 exports.CreateBlog = async (req, res) => {
   try {
-    // if (req.userType !== "ngo") {
-    //   return res
-    //     .status(401)
-    //     .send({ success: false, message: "Not Authorized." });
-    // }
-
     const user = req.user;
 
     const { title, content } = req.body;
@@ -92,15 +169,21 @@ exports.CreateBlog = async (req, res) => {
         message: "Title and content is require to create a blog !!!",
       });
     }
-
+    if (req.userType === "user") {
+      const newBlog = new Blog({
+        title,
+        content,
+        user_author: user._id,
+      });
+      const createdBlog = await newBlog.save();
+      return res.status(200).json(createdBlog);
+    }
     const newBlog = new Blog({
       title,
       content,
-      author: user._id,
+      admin_author: user._id,
     });
-
     const createdBlog = await newBlog.save();
-
     return res.status(200).json(createdBlog);
   } catch (err) {
     console.error(err);
@@ -112,12 +195,6 @@ exports.CreateBlog = async (req, res) => {
 
 exports.UpdateBlog = async (req, res) => {
   try {
-    // if (req.userType !== "ngo") {
-    //   return res
-    //     .status(401)
-    //     .send({ success: false, message: "Not Authorized." });
-    // }
-
     const blogId = req.params.id;
     const { title, content, blogUrl } = req.body;
 
@@ -127,11 +204,15 @@ exports.UpdateBlog = async (req, res) => {
         message: "Title and content is require to create a blog !!!",
       });
     }
-
-    const blog = await Blog.findById(blogId).populate(
-      "author",
-      "profile.first_name" + "profile.last_name"
-    );
+    let blog;
+    if (req.userType === "user") {
+      blog = await Blog.findById(blogId).populate(
+        "user_author",
+        "profile.first_name" + "profile.last_name"
+      );
+    } else {
+      blog = await Blog.findById(blogId).populate("admin_author");
+    }
 
     if (!blog) {
       return res
@@ -154,14 +235,19 @@ exports.UpdateBlog = async (req, res) => {
     blog.updatedAt = Date.now();
 
     const updatedBlog = await blog.save();
-
+    if (req.userType === "user") {
+      const blogData = {
+        ...updatedBlog._doc,
+        user_author:
+          updatedBlog.user_author.profile.first_name +
+          updatedBlog.user_author.profile.last_name,
+      };
+      return res.status(200).json({ success: true, blogData });
+    }
     const blogData = {
       ...updatedBlog._doc,
-      author: updatedBlog.author.profile.first_name + updatedBlog.author.profile.last_name,
+      admin_author: "Admin",
     };
-
-    // console.log(postData);
-
     return res.status(200).json({ success: true, blogData });
   } catch (err) {
     return res
@@ -172,12 +258,6 @@ exports.UpdateBlog = async (req, res) => {
 
 exports.DeleteBlog = async (req, res) => {
   try {
-    // if (req.userType !== "user" && req.userType !== "Admin") {
-    //   return res
-    //     .status(401)
-    //     .send({ success: false, message: "Not Authorized." });
-    // }
-
     const blogId = req.params.id;
 
     const deletedBlog = await Blog.findByIdAndDelete(blogId);
@@ -201,9 +281,6 @@ exports.DeleteBlog = async (req, res) => {
 
 exports.uploadFile = (req, res) => {
   console.log(req.userType);
-//   if (req.userType !== "ngo") {
-//     return res.status(401).json({ success: false, message: "Not Authorized." });
-//   }
 
   if (!req.fileUrl) {
     return res
