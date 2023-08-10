@@ -36,7 +36,7 @@ exports.GetBlogById = async (req, res) => {
     } else {
       const blogData = {
         ...blog._doc,
-        admin_author: "Admin",
+        admin_author: "admin",
       };
       res.status(200).json({ success: true, blogData });
     }
@@ -145,7 +145,7 @@ exports.GetBlogs = async (req, res) => {
         ...blog._doc,
       };
       if (blog.admin_author) {
-        blogData.admin_author = "Admin";
+        blogData.admin_author = "admin";
       }
       return blogData;
     });

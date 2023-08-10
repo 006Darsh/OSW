@@ -75,5 +75,17 @@ const EventSchema = mongoose.Schema({
   },
 });
 
+EventSchema.methods.checkEventStatus = function () {
+  const currentDate = new Date();
+  if (this.event_date <= currentDate || this.endTime <= currentDate) {
+    this.happened = true;
+  }
+};
+
+EventSchema.pre("save", function (next) {
+  this.checkEventStatus();
+  next();
+});
+
 const Event = mongoose.model("Event", EventSchema);
 module.exports = Event;

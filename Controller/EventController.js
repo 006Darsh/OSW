@@ -112,9 +112,7 @@ exports.GetEvents = async (req, res) => {
       const eventData = {
         ...event._doc,
       };
-      if (event.hosted_by_user) {
-        eventData.hosted_by_admin = "Admin";
-      }
+      eventData.hosted_by_admin = "admin";
       return eventData;
     });
     console.log(eventsData);
@@ -167,9 +165,7 @@ exports.GetPersonalEvents = async (req, res) => {
       const eventData = {
         ...event._doc,
       };
-      if (event.hosted_by_admin) {
-        eventData.hosted_by_admin = "Admin";
-      }
+      eventData.hosted_by_admin = "admin";
       return eventData;
     });
     console.log(eventsData);
@@ -216,7 +212,7 @@ exports.GetEventById = async (req, res) => {
     } else {
       const eventData = {
         ...event._doc,
-        hosted_by_admin: "Admin",
+        hosted_by_admin: "admin",
       };
       res.status(200).json({ success: true, eventData });
     }
@@ -269,7 +265,15 @@ exports.UpdateEvent = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Event Not Found." });
     }
-
+    if (event.happened) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message:
+            "Event can not edited now as today is the event or event has been already occured.",
+        });
+    }
     if (event_name) {
       event.event_name = event_name;
     }
@@ -342,10 +346,8 @@ exports.UpdateEvent = async (req, res) => {
 };
 
 exports.DeleteEvent = async (req, res) => {
-    if (req.userType !== "admin") {
-      return res
-        .status(401)
-        .send({ success: false, message: "Not Authorized." });
+  if (req.userType !== "admin") {
+    return res.status(401).send({ success: false, message: "Not Authorized." });
   }
   try {
     const eventId = req.params.id;
