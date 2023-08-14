@@ -33,6 +33,7 @@ require("./Routes/TeamRoutes")(app);
 require("./Routes/SpeakerRoutes")(app);
 require("./Routes/BlogRoutes")(app);
 require("./Routes/EventRoutes")(app);
+require("./Routes/ContactUsRoutes")(app);
 
 app.listen(PORT, () => {
   console.log(`Server listening on : http://localhost:${PORT}`);

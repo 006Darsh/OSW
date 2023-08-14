@@ -1,16 +1,9 @@
-const {
-  AdminSignup,
-  AdminLogin,
-} = require("../Controller/AdminAuthController");
 const { UserSignup, UserLogin } = require("../Controller/AuthController");
 const {
   UserSendLink,
   resetPassword,
-  AdminForgotPassword,
-  OtpLogin,
-  adminResetPassword,
 } = require("../Controller/forgetpassController");
-const AuthMiddleware = require("../Middlewares/AuthMiddleware");
+// const AuthMiddleware = require("../Middlewares/AuthMiddleware");
 
 const AuthRoutes = (app) => {
   app.post("/user/signup", UserSignup);
@@ -20,11 +13,6 @@ const AuthRoutes = (app) => {
     "/user/reset-password/:_id/:resetToken/:expirationTime",
     resetPassword
   );
-  // app.post("/admin/signup", AdminSignup);
-  // app.post("/admin/login", AdminLogin);
-  // app.post("/admin/forgotpassword", AdminForgotPassword);
-  // app.post("/admin/templogin", OtpLogin);
-  // app.post("/admin/resetPassword", AuthMiddleware, adminResetPassword);
 };
 
 module.exports = AuthRoutes;

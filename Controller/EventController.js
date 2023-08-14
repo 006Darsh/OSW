@@ -7,7 +7,6 @@ exports.CreateEvent = async (req, res) => {
       event_name,
       event_description,
       language,
-      event_poster,
       event_date,
       startTime,
       endTime,
@@ -20,17 +19,18 @@ exports.CreateEvent = async (req, res) => {
       event_goals,
       event_tags,
     } = req.body;
+    const fileUrl = req.fileUrl;
     if (req.userType === "user") {
       const newEvent = new Event({
         event_name,
         event_description,
         language,
-        event_poster,
         event_date,
         startTime,
         endTime,
         timeZone,
         event_type,
+        event_poster: fileUrl,
         meet_link,
         location,
         expected_no_of_attendee,
@@ -46,12 +46,12 @@ exports.CreateEvent = async (req, res) => {
       event_name,
       event_description,
       language,
-      event_poster,
       event_date,
       startTime,
       endTime,
       timeZone,
       event_type,
+      event_poster: fileUrl,
       meet_link,
       location,
       expected_no_of_attendee,
@@ -73,16 +73,14 @@ exports.CreateEvent = async (req, res) => {
 exports.GetEvents = async (req, res) => {
   try {
     let events;
-    if (req.userType === "user") {
-      events = await Event.find().populate({
-        path: "hosted_by_user",
-        select: "profile.first_name profile.last_name profile.profile_pic",
-      });
-    } else {
-      events = await Event.find().populate({
-        path: "hosted_by_admin",
-      });
-    }
+    events = await Event.find(
+      {},
+      "_id event_name event_date event_type"
+    ).populate({
+      path: "hosted_by_user",
+      select: "profile.first_name profile.last_name profile.profile_pic",
+    });
+
 
     if (!events) {
       return res
@@ -90,29 +88,21 @@ exports.GetEvents = async (req, res) => {
         .json({ success: false, message: "No events found !!" });
     }
 
-    // console.log(events[0].author);
-    if (req.userType === "user") {
-      const eventsData = events.map((event) => {
-        const eventData = {
-          ...event._doc,
-        };
 
-        if (event.hosted_by_user) {
-          eventData.hosted_by_user =
-            event.hosted_by_user.profile.first_name +
-            " " +
-            event.hosted_by_user.profile.last_name;
-          eventData.profile_pic = event.hosted_by_user.profile.profile_pic;
-        }
-        return eventData;
-      });
-      return res.status(200).json({ success: true, eventsData });
-    }
     const eventsData = events.map((event) => {
       const eventData = {
         ...event._doc,
       };
-      eventData.hosted_by_admin = "admin";
+
+      if (event.hosted_by_user) {
+        eventData.hosted_by_user =
+          event.hosted_by_user.profile.first_name +
+          " " +
+          event.hosted_by_user.profile.last_name;
+        eventData.profile_pic = event.hosted_by_user.profile.profile_pic;
+      } else {
+        eventData.hosted_by_admin = "admin";
+      }
       return eventData;
     });
     console.log(eventsData);
@@ -181,16 +171,16 @@ exports.GetEventById = async (req, res) => {
 
   try {
     let event;
-    if (req.userType === "user") {
+    // if (req.userType === "user") {
       event = await Event.findById(eventId).populate({
         path: "hosted_by_user",
         select: "profile.first_name profile.last_name profile.profile_pic",
       });
-    } else {
-      event = await Event.findById(eventId).populate({
-        path: "hosted_by_admin",
-      });
-    }
+    // } else {
+    //   event = await Event.findById(eventId).populate({
+    //     path: "hosted_by_admin",
+    //   });
+    // }
 
     if (!event) {
       console.warn("here");
@@ -231,7 +221,6 @@ exports.UpdateEvent = async (req, res) => {
       event_name,
       event_description,
       language,
-      event_poster,
       event_date,
       startTime,
       endTime,
@@ -244,6 +233,7 @@ exports.UpdateEvent = async (req, res) => {
       event_goals,
       event_tags,
     } = req.body;
+    const fileUrl = req.fileUrl;
     // if (!title || !content) {
     //   return res.status(400).json({
     //     success: false,
@@ -266,13 +256,11 @@ exports.UpdateEvent = async (req, res) => {
         .json({ success: false, message: "Event Not Found." });
     }
     if (event.happened) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message:
-            "Event can not edited now as today is the event or event has been already occured.",
-        });
+      return res.status(404).json({
+        success: false,
+        message:
+          "Event can not edited now as today is the event or event has been already occured.",
+      });
     }
     if (event_name) {
       event.event_name = event_name;
@@ -283,8 +271,8 @@ exports.UpdateEvent = async (req, res) => {
     if (language) {
       event.language = language;
     }
-    if (event_poster) {
-      event.event_poster = event_poster;
+    if (fileUrl) {
+      event.event_poster = fileUrl;
     }
     if (event_date) {
       event.event_date = event_date;

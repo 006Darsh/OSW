@@ -3,7 +3,7 @@ const AuthMiddleware = require("../Middlewares/AuthMiddleware");
 const fileUploaderMiddleware = require("../Middlewares/fileUploaderMiddleware");
 const blogmediaUploaderMiddleware = fileUploaderMiddleware("blog");
 
-const BLogRoutes = (app) => {
+const BlogRoutes = (app) => {
   // media routes : auth required
   app.get("/blogs", AuthMiddleware, GetBlogs);
   app.get("/personal-blogs", AuthMiddleware, GetPersonalBlogs);
@@ -21,4 +21,4 @@ const BLogRoutes = (app) => {
   );
 };
 
-module.exports = BLogRoutes;
+module.exports = BlogRoutes;

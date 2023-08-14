@@ -4,8 +4,8 @@ const { UserSendOtp, UserVerification } = require("../Controller/VerficationCont
 
 
 const VerifyRoutes = (app) => {
-  app.post("/email-verification/sendotp", UserSendOtp);
-  app.post("/email-verification/verify", UserVerification);
+  app.post("user/email-verification/sendotp", UserSendOtp);
+  app.post("user/email-verification/verify", UserVerification);
 };
 
 module.exports = VerifyRoutes;
