@@ -73,6 +73,22 @@ const EventSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  speaker: [
+    {
+      type: mongoose.Schema.Types.Mixed,
+      ref: "Speaker",
+    },
+  ],
+  attendees: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  total_attendees: {
+    type: Number,
+    default: 0,
+  },
 });
 
 EventSchema.methods.checkEventStatus = function () {

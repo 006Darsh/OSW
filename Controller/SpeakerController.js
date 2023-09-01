@@ -102,7 +102,7 @@ exports.getspeakerDetails = async (req, res) => {
     if (!speaker) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found." });
+        .json({ success: false, message: "Speaker not found." });
     }
     const responseData = {
       name: speaker.name,

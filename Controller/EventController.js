@@ -1,4 +1,5 @@
 const Event = require("../Models/Event");
+const Speaker = require("../Models/Speaker");
 
 exports.CreateEvent = async (req, res) => {
   try {
@@ -18,6 +19,7 @@ exports.CreateEvent = async (req, res) => {
       socialmedia_links,
       event_goals,
       event_tags,
+      speaker,
     } = req.body;
     const fileUrl = req.fileUrl;
     if (req.userType === "user") {
@@ -38,10 +40,12 @@ exports.CreateEvent = async (req, res) => {
         event_goals,
         event_tags,
         hosted_by_user: user._id,
+        speaker,
       });
       const createdEvent = await newEvent.save();
       return res.status(200).json(createdEvent);
     }
+
     const newEvent = new Event({
       event_name,
       event_description,
@@ -59,8 +63,27 @@ exports.CreateEvent = async (req, res) => {
       event_goals,
       event_tags,
       hosted_by_admin: user._id,
+      speaker,
     });
     const createdEvent = await newEvent.save();
+
+    for (const s of speaker) {
+      try {
+        console.log(s);
+        const speakerId = s;
+        const updatedSpeaker = await Speaker.findOneAndUpdate(
+          { _id: speakerId },
+          { $push: { sessions: createdEvent._id } }
+        );
+
+        if (!updatedSpeaker) {
+          console.error(`Speaker with ID ${speakerId} not found.`);
+        }
+      } catch (error) {
+        console.error(`Error updating speaker: ${error}`);
+      }
+    }
+
     return res.status(200).json(createdEvent);
   } catch (err) {
     console.error(err);
@@ -81,13 +104,11 @@ exports.GetEvents = async (req, res) => {
       select: "profile.first_name profile.last_name profile.profile_pic",
     });
 
-
     if (!events) {
       return res
         .status(404)
         .json({ success: false, message: "No events found !!" });
     }
-
 
     const eventsData = events.map((event) => {
       const eventData = {
@@ -172,10 +193,10 @@ exports.GetEventById = async (req, res) => {
   try {
     let event;
     // if (req.userType === "user") {
-      event = await Event.findById(eventId).populate({
-        path: "hosted_by_user",
-        select: "profile.first_name profile.last_name profile.profile_pic",
-      });
+    event = await Event.findById(eventId).populate({
+      path: "hosted_by_user",
+      select: "profile.first_name profile.last_name profile.profile_pic",
+    });
     // } else {
     //   event = await Event.findById(eventId).populate({
     //     path: "hosted_by_admin",
@@ -189,7 +210,7 @@ exports.GetEventById = async (req, res) => {
         .json({ success: false, message: "Event not found !!" });
     }
 
-    if (req.userType === "user") {
+    if (event.hosted_by_user) {
       const eventData = {
         ...event._doc,
         hosted_by_user:
@@ -259,7 +280,7 @@ exports.UpdateEvent = async (req, res) => {
       return res.status(404).json({
         success: false,
         message:
-          "Event can not edited now as today is the event or event has been already occured.",
+          "Event can not edited now as today/tommorow is the event or event has been already occured.",
       });
     }
     if (event_name) {
@@ -347,7 +368,10 @@ exports.DeleteEvent = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Event not found" });
     }
-
+    await Speaker.updateMany(
+      { sessions: eventId },
+      { $pull: { sessions: eventId } }
+    );
     return res
       .status(200)
       .json({ success: true, message: "Event deleted successfully" });
@@ -355,6 +379,42 @@ exports.DeleteEvent = async (req, res) => {
     console.log(err);
     return res
       .status(500)
-      .json({ success: false, message: "Internal server error." });
+      .json({ success: false, message: "Internal server error.", err });
+  }
+};
+
+exports.AttendEvent = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const eventId = req.params.eventid;
+    console.log(userId);
+    const event = await Event.findById(eventId);
+    console.log(event.attendees);
+    if (!event.happened && !event.attendees.includes(userId)) {
+      const event = await Event.findOneAndUpdate(
+        { _id: eventId },
+        { $push: { attendees: userId } },
+        { new: true } // Returns the updated document
+      );
+
+      if (event) {
+        const newTotalAttendees = event.attendees.length;
+        event.total_attendees = newTotalAttendees;
+        await event.save();
+      }
+      return res.status(200).json({
+        success: true,
+        message: "You have successfully registered for the event.",
+      });
+    } else {
+      return res.status(400).send({
+        success: false,
+        message: "You are already attending this event.",
+      });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error.", error });
   }
 };
