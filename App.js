@@ -25,15 +25,17 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(logger("dev"));
 
-require("./Routes/AuthRoutes")(app);
-require("./Routes/VerfiyRoutes")(app);
-require("./Routes/ProfileRoutes")(app);
 require("./Routes/AdminRoutes")(app);
-require("./Routes/TeamRoutes")(app);
-require("./Routes/SpeakerRoutes")(app);
+require("./Routes/AuthRoutes")(app);
 require("./Routes/BlogRoutes")(app);
-require("./Routes/EventRoutes")(app);
 require("./Routes/ContactUsRoutes")(app);
+require("./Routes/EventRoutes")(app);
+require("./Routes/NotificationRoutes")(app);
+require("./Routes/ProfileRoutes")(app);
+require("./Routes/ResourceLibraryRoutes")(app);
+require("./Routes/SpeakerRoutes")(app);
+require("./Routes/TeamRoutes")(app);
+require("./Routes/VerfiyRoutes")(app);
 
 app.listen(PORT, () => {
   console.log(`Server listening on : http://localhost:${PORT}`);

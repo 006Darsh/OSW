@@ -5,7 +5,7 @@
   "main": "App.ja",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"nodemon App.js"
+    "start": "nodemon App.js"
   },
   "author": "Darsh and Shivam",
   "license": "ISC",
@@ -20,6 +20,7 @@
     "mongoose": "^7.4.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.2",
     "nodemailer": "^6.9.4",
     "nodemon": "^3.0.1",
     "path": "^0.12.7",

@@ -43,7 +43,7 @@ const EventSchema = mongoose.Schema({
     country: String,
     city: String,
   },
-  expected_no_of_attendee: {
+  limit: {
     type: Number,
   },
   socialmedia_links: [
@@ -89,19 +89,23 @@ const EventSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  attendees_check: {
+    type: Number,
+    default: 0,
+  },
 });
 
-EventSchema.methods.checkEventStatus = function () {
-  const currentDate = new Date();
-  if (this.event_date <= currentDate || this.endTime <= currentDate) {
-    this.happened = true;
-  }
-};
+// EventSchema.methods.checkEventStatus = function () {
+//   const currentDate = new Date();
+//   if (this.event_date <= currentDate || this.endTime <= currentDate) {
+//     this.happened = true;
+//   }
+// };
 
-EventSchema.pre("save", function (next) {
-  this.checkEventStatus();
-  next();
-});
+// EventSchema.pre("save", function (next) {
+//   this.checkEventStatus();
+//   next();
+// });
 
 const Event = mongoose.model("Event", EventSchema);
 module.exports = Event;

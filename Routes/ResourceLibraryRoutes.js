@@ -7,7 +7,7 @@ const {
 } = require("../Controller/ResourceLibraryController");
 const AuthMiddleware = require("../Middlewares/AuthMiddleware");
 
-const resourceLibraryRoutes = (app) => {
+const ResourceLibraryRoutes = (app) => {
   app.post("/resource-library/add-project", AuthMiddleware, AddProject);
   app.get("/resource-library/allprojects", GetProjects);
   app.get("/resource-library/project/:id", GetProjectDetails);
@@ -22,3 +22,4 @@ const resourceLibraryRoutes = (app) => {
     DeleteProject
   );
 };
+module.exports = ResourceLibraryRoutes;

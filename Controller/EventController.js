@@ -1,5 +1,10 @@
+const cron = require("node-cron");
 const Event = require("../Models/Event");
 const Speaker = require("../Models/Speaker");
+const {
+  NotifyUsersEvent,
+  AttendeeIncreaseNotification,
+} = require("./NotificationController");
 
 exports.CreateEvent = async (req, res) => {
   try {
@@ -15,7 +20,7 @@ exports.CreateEvent = async (req, res) => {
       event_type,
       meet_link,
       location,
-      expected_no_of_attendee,
+      limit,
       socialmedia_links,
       event_goals,
       event_tags,
@@ -35,7 +40,7 @@ exports.CreateEvent = async (req, res) => {
         event_poster: fileUrl,
         meet_link,
         location,
-        expected_no_of_attendee,
+        limit,
         socialmedia_links,
         event_goals,
         event_tags,
@@ -43,7 +48,19 @@ exports.CreateEvent = async (req, res) => {
         speaker,
       });
       const createdEvent = await newEvent.save();
-      return res.status(200).json(createdEvent);
+      if (createdEvent) {
+        const title = "New event Available";
+        const content = `A new ${
+          newEvent.event_type
+        } event is available.\nEvent Name is : ${
+          newEvent.event_name
+        }.\nTags of event are ${newEvent.event_tags.join(", ")}`;
+        NotifyUsersEvent(newEvent, content, title);
+        return res.status(200).json({
+          success: true,
+          Event: createdEvent,
+        });
+      }
     }
 
     const newEvent = new Event({
@@ -58,7 +75,7 @@ exports.CreateEvent = async (req, res) => {
       event_poster: fileUrl,
       meet_link,
       location,
-      expected_no_of_attendee,
+      limit,
       socialmedia_links,
       event_goals,
       event_tags,
@@ -83,8 +100,19 @@ exports.CreateEvent = async (req, res) => {
         console.error(`Error updating speaker: ${error}`);
       }
     }
-
-    return res.status(200).json(createdEvent);
+    if (createdEvent) {
+      const title = "New event Available";
+      const content = `A new ${
+        newEvent.event_type
+      } event is available.\nEvent Name is : ${
+        newEvent.event_name
+      }.\nTags of event are ${newEvent.event_tags.join(", ")}`;
+      NotifyUsersEvent(newEvent, content, title);
+      return res.status(200).json({
+        success: true,
+        Event: createdEvent,
+      });
+    }
   } catch (err) {
     console.error(err);
     return res
@@ -249,7 +277,7 @@ exports.UpdateEvent = async (req, res) => {
       event_type,
       meet_link,
       location,
-      expected_no_of_attendee,
+      limit,
       socialmedia_links,
       event_goals,
       event_tags,
@@ -283,56 +311,84 @@ exports.UpdateEvent = async (req, res) => {
           "Event can not edited now as today/tommorow is the event or event has been already occured.",
       });
     }
-    if (event_name) {
+    let content = `The ${event.event_type} event "${event.event_name}" has been updated. Changes include:\n`;
+    if (event_name !== event.event_name) {
+      content += `- Event Name: ${event.event_name} -> ${event_name}\n`;
       event.event_name = event_name;
     }
-    if (event_description) {
+    if (event_description !== event.event_description) {
+      content += `- Event Description: ${event.event_description} -> ${event_description}\n`;
       event.event_description = event_description;
     }
-    if (language) {
+    if (language !== event.language) {
+      content += `- Language: ${event.language} -> ${language}\n`;
       event.language = language;
     }
-    if (fileUrl) {
+    if (fileUrl !== event.event_poster) {
+      content += `- Event Poster: ${event.event_poster} -> ${fileUrl}\n`;
       event.event_poster = fileUrl;
     }
-    if (event_date) {
+    if (event_date !== event.event_date) {
+      content += `- Event Date: ${event.event_date} -> ${event_date}\n`;
       event.event_date = event_date;
     }
-    if (startTime) {
+    if (startTime !== event.startTime) {
+      content += `- Start Time: ${event.startTime} -> ${startTime}\n`;
       event.startTime = startTime;
     }
-    if (endTime) {
+    if (endTime !== event.endTime) {
+      content += `- End Time: ${event.endTime} -> ${endTime}\n`;
       event.endTime = endTime;
     }
-    if (timeZone) {
+    if (timeZone !== event.timeZone) {
+      content += `- Time Zone: ${event.timeZone} -> ${timeZone}\n`;
       event.timeZone = timeZone;
     }
-    if (event_type) {
+    if (event_type !== event.event_type) {
+      content += `- Event Type: ${event.event_type} -> ${event_type}\n`;
       event.event_type = event_type;
     }
-    if (meet_link) {
+    if (meet_link !== event.meet_link) {
+      content += `- Meet Link: ${event.meet_link} -> ${meet_link}\n`;
       event.meet_link = meet_link;
       event.location = {};
     }
-    if (location) {
+    if (location !== event.location) {
+      content += `- Location: ${JSON.stringify(
+        event.location
+      )} -> ${JSON.stringify(location)}\n`;
       event.location = location;
       event.meet_link = "";
     }
-    if (expected_no_of_attendee) {
-      event.expected_no_of_attendee = expected_no_of_attendee;
+    if (limit !== event.limit) {
+      content += `- Expected No. of Attendees: ${event.limit} -> ${limit}\n`;
+      event.limit = limit;
     }
-    if (socialmedia_links) {
+    if (socialmedia_links !== event.socialmedia_links) {
+      content += `- Social Media Links: ${JSON.stringify(
+        event.socialmedia_links
+      )} -> ${JSON.stringify(socialmedia_links)}\n`;
       event.socialmedia_links = socialmedia_links;
     }
-    if (event_goals) {
+    if (event_goals !== event.event_goals) {
+      content += `- Event Goals: ${event.event_goals} -> ${event_goals}\n`;
       event.event_goals = event_goals;
     }
-    if (event_tags) {
+    if (event_tags !== event.event_tags) {
+      content += `- Event Tags: ${JSON.stringify(
+        event.event_tags
+      )} -> ${JSON.stringify(event_tags)}\n`;
       event.event_tags = event_tags;
     }
+
     event.updatedAt = Date.now();
 
     const updatedEvent = await event.save();
+    if (updatedEvent) {
+      const title = "An event is updated";
+      content += "\nCheck it out now!";
+      NotifyUsersEvent(updatedEvent, content, title);
+    }
     if (req.userType === "user") {
       const eventData = {
         ...updatedEvent._doc,
@@ -372,6 +428,11 @@ exports.DeleteEvent = async (req, res) => {
       { sessions: eventId },
       { $pull: { sessions: eventId } }
     );
+    if (deletedEvent) {
+      const title = "An event is deleted";
+      let content = `The event ${deletedEvent.event_name} has been deleted by the admin because of the community guidelines and our policies`;
+      NotifyUsersEvent(deletedEvent, content, title);
+    }
     return res
       .status(200)
       .json({ success: true, message: "Event deleted successfully" });
@@ -390,7 +451,11 @@ exports.AttendEvent = async (req, res) => {
     console.log(userId);
     const event = await Event.findById(eventId);
     console.log(event.attendees);
-    if (!event.happened && !event.attendees.includes(userId)) {
+    if (
+      !event.happened &&
+      !event.attendees.includes(userId) &&
+      event.hosted_by_user !== userId
+    ) {
       const event = await Event.findOneAndUpdate(
         { _id: eventId },
         { $push: { attendees: userId } },
@@ -400,6 +465,13 @@ exports.AttendEvent = async (req, res) => {
       if (event) {
         const newTotalAttendees = event.attendees.length;
         event.total_attendees = newTotalAttendees;
+        if (
+          event.total_attendees / 20 !== event.attendees_check / 20 ||
+          event.total_attendees === event.limit
+        ) {
+          event.attendees_check = event.total_attendees;
+          AttendeeIncreaseNotification(event.total_attendees, event);
+        }
         await event.save();
       }
       return res.status(200).json({
@@ -418,3 +490,34 @@ exports.AttendEvent = async (req, res) => {
       .json({ success: false, message: "Internal server error.", error });
   }
 };
+
+// Function to check and update event status
+const checkEventStatus = async () => {
+  try {
+    const currentDate = new Date();
+
+    // Find events where event_date or endTime is in the past
+    const eventsToUpdate = await Event.find({
+      $or: [
+        { event_date: { $lte: currentDate } }, // Event date is in the past
+        { endTime: { $lte: currentDate } }, // Event end time is in the past
+        { event_date: { $gte: currentDate, $lte: currentDate + 1 } }, // Event date is today or tomorrow
+      ],
+      happened: false, // Only update events that haven't happened yet
+    });
+
+    // Update the happened status for each event
+    for (const event of eventsToUpdate) {
+      event.happened = true;
+      await event.save();
+    }
+
+    console.log("Updated event statuses.");
+  } catch (error) {
+    console.error("Error updating event statuses:", error);
+  }
+};
+cron.schedule("0 0 * * *", () => {
+  console.log("Running checkEventStatus function...");
+  checkEventStatus();
+});
