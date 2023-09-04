@@ -3,9 +3,17 @@ const Admin = require("../Models/Admin");
 const genToken = require("../Services/jwtTokenService");
 const bcrypt = require("bcrypt");
 
-exports.AdminSignup = async (req, res) => {
+exports.AddAdmin = async (req, res) => {
   try {
-    const { email, password, confirm_password } = req.body;
+    const adminId = req.user._id;
+    const admin = await Admin.findOne({ _id: adminId });
+    console.log(admin);
+    if (!admin.superadmin) {
+      return res
+        .status(401)
+        .send({ success: false, message: "Not Authorized." });
+    }
+    const { email, password } = req.body;
     // Check if admin with the same email already exists
     const exist = await Admin.findOne({ email: email });
     if (exist) {
@@ -14,15 +22,7 @@ exports.AdminSignup = async (req, res) => {
         message: "Admin with this email already exists.",
       });
     }
-    // Check if password and confirm_password match
-    if (password !== confirm_password) {
-      return res.status(400).send({
-        success: false,
-        message: "Password and Confirm Password do not match.",
-      });
-    }
-    // Encrypt the password using bcrypt
-    // const saltRounds = 10;
+
     const hashedPassword = await bcrypt.hash(password, 10);
     // Save the admin data to the Admin schema
     const newAdmin = new Admin({

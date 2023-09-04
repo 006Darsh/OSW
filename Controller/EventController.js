@@ -450,38 +450,43 @@ exports.AttendEvent = async (req, res) => {
     const eventId = req.params.eventid;
     console.log(userId);
     const event = await Event.findById(eventId);
-    console.log(event.attendees);
-    if (
-      !event.happened &&
-      !event.attendees.includes(userId) &&
-      event.hosted_by_user !== userId
-    ) {
-      const event = await Event.findOneAndUpdate(
-        { _id: eventId },
-        { $push: { attendees: userId } },
-        { new: true } // Returns the updated document
-      );
+    if (!event.happened || event.total_attendees !== event.limit) {
+      if (
+        !event.attendees.includes(userId) &&
+        event.hosted_by_user !== userId
+      ) {
+        const event = await Event.findOneAndUpdate(
+          { _id: eventId },
+          { $push: { attendees: userId } },
+          { new: true } // Returns the updated document
+        );
 
-      if (event) {
-        const newTotalAttendees = event.attendees.length;
-        event.total_attendees = newTotalAttendees;
-        if (
-          event.total_attendees / 20 !== event.attendees_check / 20 ||
-          event.total_attendees === event.limit
-        ) {
-          event.attendees_check = event.total_attendees;
-          AttendeeIncreaseNotification(event.total_attendees, event);
+        if (event) {
+          const newTotalAttendees = event.attendees.length;
+          event.total_attendees = newTotalAttendees;
+          if (
+            event.total_attendees / 20 !== event.attendees_check / 20 ||
+            event.total_attendees === event.limit
+          ) {
+            event.attendees_check = event.total_attendees;
+            AttendeeIncreaseNotification(event.total_attendees, event);
+          }
+          await event.save();
         }
-        await event.save();
+        return res.status(200).json({
+          success: true,
+          message: "You have successfully registered for the event.",
+        });
+      } else {
+        return res.status(400).send({
+          success: false,
+          message: "You are already attending this event.",
+        });
       }
-      return res.status(200).json({
-        success: true,
-        message: "You have successfully registered for the event.",
-      });
     } else {
       return res.status(400).send({
         success: false,
-        message: "You are already attending this event.",
+        message: `Sorry, registrations for the event are closed. Please stay tuned!`,
       });
     }
   } catch (error) {

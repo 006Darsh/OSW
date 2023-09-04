@@ -10,7 +10,9 @@ const AdminSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  
+  superadmin: {
+    type:Boolean,
+  }
 });
 const Admin = mongoose.model("Admin", AdminSchema);
 module.exports = Admin;
