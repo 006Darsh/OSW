@@ -44,6 +44,7 @@ jspm_packages/
 .env/
 uploads/pics/*
 uploads/blog/*
+uploads/event/*
 uploads/teams_pic/*
 uploads/speaker_pic/*
 # Snowpack dependency directory (https://snowpack.dev/)
