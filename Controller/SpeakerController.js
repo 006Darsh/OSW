@@ -1,4 +1,5 @@
 const Admin = require("../Models/Admin");
+const Event = require("../Models/Event");
 const Speaker = require("../Models/Speaker");
 
 exports.AddSpeakers = async (req, res) => {
@@ -119,6 +120,42 @@ exports.getspeakerDetails = async (req, res) => {
       data: responseData,
     });
   } catch (error) {
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+exports.deleteSpeaker = async (req, res) => {
+  try {
+    const userType = req.userType;
+    if (userType !== "admin") {
+      return res
+        .status(403)
+        .send({ success: false, message: "Not Authorized." });
+    }
+    const _id = req.params.id;
+    // await Event.deleteMany({ hosted_by_user: _id });
+    // await Blog.deleteMany({ user_author: _id });
+    await Event.updateMany(
+      { speakers: _id },
+      {
+        $pull: { speakers: _id }
+      }
+    );
+    const speaker = await Speaker.findOne({ _id });
+    if (!speaker) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Speaker not found." });
+    }
+    const result = await Speaker.findByIdAndDelete(_id);
+    if (!result) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to delete speaker." });
+    }
+    return res.status(200).send({ success: true, message: "Speaker Deleted." });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };

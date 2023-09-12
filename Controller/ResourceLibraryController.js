@@ -3,7 +3,8 @@ const { NotifyUsersProjects } = require("./NotificationController");
 
 exports.AddProject = async (req, res) => {
   try {
-    const { project_name, project_details, project_links } = req.body;
+    const { project_name, project_details, project_links, project_tags } =
+      req.body;
     if (req.userType !== "admin") {
       return res
         .status(401)
@@ -13,12 +14,13 @@ exports.AddProject = async (req, res) => {
       project_name,
       project_details,
       project_links,
+      project_tags,
     });
     const createdProject = await newProject.save();
     if (createdProject) {
       const title = "New Open Source Project Available";
       const content = `A new Open Source Project is available.\nProject Name is : ${newProject.project_name}.`;
-      NotifyUsersProjects(newProject, content, title);
+      NotifyUsersProjects(newProject, content, title, (type = "create"));
       return res.status(200).json({
         success: true,
         Project: createdProject,
@@ -40,6 +42,7 @@ exports.GetProjects = async (req, res) => {
       {
         _id: 1,
         project_name: 1,
+        project_details:1,
       }
     );
     return res.status(200).send({ success: true, projects });
@@ -63,6 +66,7 @@ exports.GetProjectDetails = async (req, res) => {
       project_name: project.project_name,
       project_details: project.project_details,
       project_links: project.project_links,
+      project_tags: project.project_tags,
     };
     res.status(200).json({
       success: true,
@@ -78,7 +82,8 @@ exports.GetProjectDetails = async (req, res) => {
 exports.UpdateProject = async (req, res) => {
   try {
     const projectId = req.params.id;
-    const { project_name, project_details, project_links } = req.body;
+    const { project_name, project_details, project_links, project_tags } =
+      req.body;
     let project;
     if (req.usertype === "admin") {
       project = await Resource.findById(projectId);
@@ -96,6 +101,10 @@ exports.UpdateProject = async (req, res) => {
       content += `- Project Details: ${project.project_details} -> ${project_details}\n`;
       project.project_details = project_details;
     }
+    if (project_tags !== project.project_tags) {
+      content += `- Project Tags: ${project.project_tags} -> ${project_tags}\n`;
+      project.project_details = project_details;
+    }
     if (project_links !== project.project_links) {
       project.project_links = project_links;
     }
@@ -104,7 +113,7 @@ exports.UpdateProject = async (req, res) => {
     if (updatedProject) {
       const title = "A project is updated";
       content += "\nCheck it out now!";
-      NotifyUsersProjects(updatedProject, content, title);
+      NotifyUsersProjects(updatedProject, content, title, (type = "update"));
     }
     return res.status(200).json({ success: true, updatedProject });
   } catch (error) {
@@ -129,7 +138,7 @@ exports.DeleteProject = async (req, res) => {
     if (deletedProject) {
       const title = "A Project is deleted";
       let content = `The Project ${deletedProject.project_name} has been deleted by the admin.`;
-      NotifyUsersEvent(deletedProject, content, title);
+      NotifyUsersEvent(deletedProject, content, title, (type = "delete"));
     }
     return res
       .status(200)

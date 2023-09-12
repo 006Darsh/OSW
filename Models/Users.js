@@ -11,6 +11,9 @@ const UserSchema = mongoose.Schema({
     unique: true,
     required: true,
   },
+  contact_no: {
+    type:Number,
+  },
   password: {
     type: String,
     required: true,

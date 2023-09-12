@@ -9,6 +9,9 @@ const notificationSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  link: {
+    type:String,
+  },
   recipients: [
     {
       recipient: {

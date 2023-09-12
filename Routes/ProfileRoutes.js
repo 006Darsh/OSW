@@ -3,6 +3,8 @@ const {
   getUserProfile,
   uploadProfilePic,
   getProfilePic,
+  getAllUsers,
+  deleteUser,
 } = require("../Controller/ProfileController");
 const AuthMiddleware = require("../Middlewares/AuthMiddleware");
 const fileUploaderMiddleware = require("../Middlewares/fileUploaderMiddleware");
@@ -18,6 +20,8 @@ const ProfileRoutes = (app) => {
     uploadProfilePic
   );
   app.get("/user/profile-pic/:id", getProfilePic);
+  app.get("/users", AuthMiddleware, getAllUsers);
+  app.delete("/delete/user/:id", AuthMiddleware, deleteUser);
 };
 
 module.exports = ProfileRoutes;

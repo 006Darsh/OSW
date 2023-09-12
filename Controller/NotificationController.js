@@ -159,7 +159,7 @@ exports.deleteAllNotifications = async (req, res) => {
 };
 
 //Event notification creation
-exports.NotifyUsersEvent = async (event, content, title) => {
+exports.NotifyUsersEvent = async (event, content, title, type) => {
   try {
     let users;
     if (event.hosted_by_user) {
@@ -167,16 +167,21 @@ exports.NotifyUsersEvent = async (event, content, title) => {
     } else {
       users = await User.find({});
     }
+    console.log(type);
     CreateNotificationEvent(users, event, content);
-    for (const user of users) {
-      const text = `Dear ${
-        user.profile.first_name + " " + user.profile.last_name
-      },\n${content}`;
-      try {
-        const mailRes = await sendMail(user.email, title, text);
-      } catch (error) {
-        console.error("Error sending email:", error);
-      }
+    switch (type) {
+      case "create":
+        for (const user of users) {
+          const text = `Dear ${
+            user.profile.first_name + " " + user.profile.last_name
+          },\n${content}`;
+          try {
+            const mailRes = await sendMail(user.email, title, text);
+          } catch (error) {
+            console.error("Error sending email:", error);
+          }
+        }
+        break;
     }
   } catch (error) {
     console.error("Error sending emails to NGOs:", error);
@@ -200,6 +205,7 @@ const CreateNotificationEvent = async (users, event, content) => {
     const newNotification = new Notification({
       content: content,
       recipients: recipients,
+      link: `/event/details/${event._id}`,
     });
 
     await newNotification.save();
@@ -317,7 +323,7 @@ cron.schedule("0 9 * * *", () => {
 });
 
 //Resource Library notification creation
-exports.NotifyUsersProjects = async (project, content, title) => {
+exports.NotifyUsersProjects = async (project, content, title, type) => {
   try {
     let users;
     if (project.hosted_by_user) {
@@ -326,15 +332,19 @@ exports.NotifyUsersProjects = async (project, content, title) => {
       users = await User.find({});
     }
     CreateNotificationProjects(users, project, content);
-    for (const user of users) {
-      const text = `Dear ${
-        user.profile.first_name + " " + user.profile.last_name
-      },\n${content}`;
-      try {
-        const mailRes = await sendMail(user.email, title, text);
-      } catch (error) {
-        console.error("Error sending email:", error);
-      }
+    switch (type) {
+      case "create":
+        for (const user of users) {
+          const text = `Dear ${
+            user.profile.first_name + " " + user.profile.last_name
+          },\n${content}`;
+          try {
+            const mailRes = await sendMail(user.email, title, text);
+          } catch (error) {
+            console.error("Error sending email:", error);
+          }
+        }
+        break;
     }
   } catch (error) {
     console.error("Error sending emails to NGOs:", error);
@@ -358,6 +368,7 @@ const CreateNotificationProjects = async (users, project, content) => {
     const newNotification = new Notification({
       content: content,
       recipients: recipients,
+      link: `/project/details/${project._id}`,
     });
 
     await newNotification.save();

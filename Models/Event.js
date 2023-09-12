@@ -73,7 +73,7 @@ const EventSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  speaker: [
+  speakers: [
     {
       type: mongoose.Schema.Types.Mixed,
       ref: "Speaker",

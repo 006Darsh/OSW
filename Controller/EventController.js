@@ -9,6 +9,15 @@ const {
 exports.CreateEvent = async (req, res) => {
   try {
     const user = req.user;
+    if (req.userType === "user") {
+      if (!user.profile.first_name && !user.profile.last_name) {
+        return res.status(401).send({
+          success: false,
+          message: "Please Complete your profile First.",
+          secret: "Send_To_Profile",
+        });
+      }
+    }
     const {
       event_name,
       event_description,
@@ -24,7 +33,7 @@ exports.CreateEvent = async (req, res) => {
       socialmedia_links,
       event_goals,
       event_tags,
-      speaker,
+      speakers,
     } = req.body;
     const fileUrl = req.fileUrl;
     if (req.userType === "user") {
@@ -45,7 +54,7 @@ exports.CreateEvent = async (req, res) => {
         event_goals,
         event_tags,
         hosted_by_user: user._id,
-        speaker,
+        speakers,
       });
       const createdEvent = await newEvent.save();
       if (createdEvent) {
@@ -55,7 +64,7 @@ exports.CreateEvent = async (req, res) => {
         } event is available.\nEvent Name is : ${
           newEvent.event_name
         }.\nTags of event are ${newEvent.event_tags.join(", ")}`;
-        NotifyUsersEvent(newEvent, content, title);
+        NotifyUsersEvent(newEvent, content, title, (type = "create"));
         return res.status(200).json({
           success: true,
           Event: createdEvent,
@@ -80,11 +89,11 @@ exports.CreateEvent = async (req, res) => {
       event_goals,
       event_tags,
       hosted_by_admin: user._id,
-      speaker,
+      speakers,
     });
     const createdEvent = await newEvent.save();
 
-    for (const s of speaker) {
+    for (const s of speakers) {
       try {
         console.log(s);
         const speakerId = s;
@@ -107,7 +116,7 @@ exports.CreateEvent = async (req, res) => {
       } event is available.\nEvent Name is : ${
         newEvent.event_name
       }.\nTags of event are ${newEvent.event_tags.join(", ")}`;
-      NotifyUsersEvent(newEvent, content, title);
+      NotifyUsersEvent(newEvent, content, title, (type = "create"));
       return res.status(200).json({
         success: true,
         Event: createdEvent,
@@ -387,7 +396,7 @@ exports.UpdateEvent = async (req, res) => {
     if (updatedEvent) {
       const title = "An event is updated";
       content += "\nCheck it out now!";
-      NotifyUsersEvent(updatedEvent, content, title);
+      NotifyUsersEvent(updatedEvent, content, title, (type = "update"));
     }
     if (req.userType === "user") {
       const eventData = {
@@ -425,13 +434,14 @@ exports.DeleteEvent = async (req, res) => {
         .json({ success: false, message: "Event not found" });
     }
     await Speaker.updateMany(
-      { sessions: eventId },
-      { $pull: { sessions: eventId } }
+      { sessions: eventId }, // Specify the condition to find documents with the eventId in the sessions array
+      { $pull: { sessions: eventId } } // Use $pull to remove the eventId from the sessions array
     );
+
     if (deletedEvent) {
       const title = "An event is deleted";
       let content = `The event ${deletedEvent.event_name} has been deleted by the admin because of the community guidelines and our policies`;
-      NotifyUsersEvent(deletedEvent, content, title);
+      NotifyUsersEvent(deletedEvent, content, title, (type = "delete"));
     }
     return res
       .status(200)
@@ -450,7 +460,7 @@ exports.AttendEvent = async (req, res) => {
     const eventId = req.params.eventid;
     console.log(userId);
     const event = await Event.findById(eventId);
-    if (!event.happened || event.total_attendees !== event.limit) {
+    if (!event.happened && event.total_attendees !== event.limit) {
       if (
         !event.attendees.includes(userId) &&
         event.hosted_by_user !== userId

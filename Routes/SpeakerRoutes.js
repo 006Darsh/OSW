@@ -2,6 +2,7 @@ const {
   AddSpeakers,
   getallSpeakers,
   getspeakerDetails,
+  deleteSpeaker,
 } = require("../Controller/SpeakerController");
 const AuthMiddleware = require("../Middlewares/AuthMiddleware");
 const fileUploaderMiddleware = require("../Middlewares/fileUploaderMiddleware");
@@ -15,6 +16,7 @@ const SpeakerRoutes = (app) => {
   );
   app.get("/speaker/all-details/:id", getspeakerDetails);
   app.get("/all-speaker", getallSpeakers);
+  app.delete("/delete/speaker/:id", AuthMiddleware, deleteSpeaker);
 };
 
 module.exports = SpeakerRoutes;

@@ -1,14 +1,17 @@
+const Blog = require("../Models/Blog");
+const Event = require("../Models/Event");
 const User = require("../Models/Users");
 const fs = require("fs");
 exports.AddUserProfile = async (req, res) => {
   try {
     const UserId = req.user._id;
-    const { user_name, first_name, last_name, email } = req.body;
+    const { user_name, first_name, last_name, email, contact_no } = req.body;
     let updatedFields = {
       user_name,
       email,
       "profile.first_name": first_name,
       "profile.last_name": last_name,
+      contact_no,
     };
     const user = await User.findByIdAndUpdate(
       UserId,
@@ -145,6 +148,52 @@ exports.getProfilePic = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const userType = req.userType;
+    if (userType !== "admin") {
+      return res
+        .status(403)
+        .send({ success: false, message: "Not Authorized." });
+    }
+    const users = await User.find({});
+    return res.status(200).json({ success: true, users });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const userType = req.userType;
+    if (userType !== "admin") {
+      return res
+        .status(403)
+        .send({ success: false, message: "Not Authorized." });
+    }
+    const _id = req.params.id;
+    await Event.deleteMany({ hosted_by_user: _id });
+    await Blog.deleteMany({ user_author: _id });
+    const user = await User.findOne({ _id });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+    const result = await User.findByIdAndDelete(_id);
+    if (!result) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to delete user." });
+    }
+    return res.status(200).send({ success: true, message: "User Deleted." });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
