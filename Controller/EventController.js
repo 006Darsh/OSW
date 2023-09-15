@@ -5,12 +5,15 @@ const {
   NotifyUsersEvent,
   AttendeeIncreaseNotification,
 } = require("./NotificationController");
+const User = require("../Models/Users");
 
 exports.CreateEvent = async (req, res) => {
   try {
-    const user = req.user;
+    // const user = req.user;
+    const user = await User.find({ _id: req.user._id });
+    console.log(user);
     if (req.userType === "user") {
-      if (!user.profile.first_name && !user.profile.last_name) {
+      if (!user[0].profile.first_name && !user[0].profile.last_name) {
         return res.status(401).send({
           success: false,
           message: "Please Complete your profile First.",
@@ -28,7 +31,12 @@ exports.CreateEvent = async (req, res) => {
       timeZone,
       event_type,
       meet_link,
-      location,
+      address,
+      city,
+      state,
+      country,
+      pincode,
+      // location,
       limit,
       socialmedia_links,
       event_goals,
@@ -48,12 +56,17 @@ exports.CreateEvent = async (req, res) => {
         event_type,
         event_poster: fileUrl,
         meet_link,
-        location,
+        address,
+        "location.city": city,
+        "location.state": state,
+        "location.country": country,
+        "location.pincode": pincode,
+        // location,
         limit,
         socialmedia_links,
         event_goals,
         event_tags,
-        hosted_by_user: user._id,
+        hosted_by_user: user[0]._id,
         speakers,
       });
       const createdEvent = await newEvent.save();
@@ -83,7 +96,12 @@ exports.CreateEvent = async (req, res) => {
       event_type,
       event_poster: fileUrl,
       meet_link,
-      location,
+      address,
+      "location.city":city,
+      "location.state":state,
+      "location.country":country,
+      "location.pincode":pincode,
+      // location,
       limit,
       socialmedia_links,
       event_goals,
@@ -285,7 +303,12 @@ exports.UpdateEvent = async (req, res) => {
       timeZone,
       event_type,
       meet_link,
-      location,
+      address,
+      city,
+      state,
+      country,
+      pincode,
+      // location,
       limit,
       socialmedia_links,
       event_goals,
@@ -362,11 +385,18 @@ exports.UpdateEvent = async (req, res) => {
       event.meet_link = meet_link;
       event.location = {};
     }
-    if (location !== event.location) {
+    if (address !== event.address) {
+      content += `- Address: ${event.address} -> ${address}\n`;
+      event.address = address;
+    }
+    if (city !== event.city || state !== event.state ||country !== event.country || pincode !== event.pincode) {
+      event.location.city = city;
+      event.location.state = state;
+      event.location.country = country;
+      event.location.pincode = pincode;
       content += `- Location: ${JSON.stringify(
         event.location
       )} -> ${JSON.stringify(location)}\n`;
-      event.location = location;
       event.meet_link = "";
     }
     if (limit !== event.limit) {
@@ -515,7 +545,6 @@ const checkEventStatus = async () => {
     const eventsToUpdate = await Event.find({
       $or: [
         { event_date: { $lte: currentDate } }, // Event date is in the past
-        { endTime: { $lte: currentDate } }, // Event end time is in the past
         { event_date: { $gte: currentDate, $lte: currentDate + 1 } }, // Event date is today or tomorrow
       ],
       happened: false, // Only update events that haven't happened yet

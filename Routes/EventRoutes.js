@@ -19,7 +19,7 @@ const BLogRoutes = (app) => {
   app.post(
     "/event/create-event",
     AuthMiddleware,
-    // eventmediaUploaderMiddleware,
+    eventmediaUploaderMiddleware,
     CreateEvent
   );
   app.put("/event/update-event/:id", AuthMiddleware, UpdateEvent);

@@ -6,7 +6,7 @@ exports.ContactUs = async (req, res) => {
     if (!name || !mobile_no || !email || !message) {
       return res.status(400).json({
         success: false,
-        message: "All details are required to add a team member !!!",
+        message: "All details are required!!!",
       });
     }
     const newMessage = new Contact({
@@ -19,7 +19,7 @@ exports.ContactUs = async (req, res) => {
     return res.status(200).send({
       success: true,
       team_member: newMessage,
-      message: "Team Member Added Successfully",
+      message: "Your message was given Successfully",
     });
   } catch (error) {
     console.error("Error in sending message:", error);

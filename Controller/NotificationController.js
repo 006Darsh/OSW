@@ -171,16 +171,16 @@ exports.NotifyUsersEvent = async (event, content, title, type) => {
     CreateNotificationEvent(users, event, content);
     switch (type) {
       case "create":
-        for (const user of users) {
-          const text = `Dear ${
-            user.profile.first_name + " " + user.profile.last_name
-          },\n${content}`;
-          try {
-            const mailRes = await sendMail(user.email, title, text);
-          } catch (error) {
-            console.error("Error sending email:", error);
-          }
-        }
+        // for (const user of users) {
+        //   const text = `Dear ${
+        //     user.profile.first_name + " " + user.profile.last_name
+        //   },\n${content}`;
+        //   try {
+        //     const mailRes = await sendMail(user.email, title, text);
+        //   } catch (error) {
+        //     console.error("Error sending email:", error);
+        //   }
+        // }
         break;
     }
   } catch (error) {

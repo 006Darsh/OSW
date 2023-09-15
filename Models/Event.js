@@ -37,11 +37,14 @@ const EventSchema = mongoose.Schema({
       return this.event_type === "Online";
     },
   },
+  address: {
+    type: String,
+  },
   location: {
-    address: String,
+    city: String,
     state: String,
     country: String,
-    city: String,
+    pincode: Number,
   },
   limit: {
     type: Number,
