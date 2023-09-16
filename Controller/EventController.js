@@ -286,7 +286,7 @@ exports.GetEventById = async (req, res) => {
     } else {
       const eventData = {
         ...event._doc,
-        speakers: eventSpeakers,
+        // speakers: eventSpeakers,
         hosted_by_admin: "admin",
       };
       res.status(200).json({ success: true, eventData });

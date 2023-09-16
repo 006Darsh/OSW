@@ -42,7 +42,9 @@ exports.GetProjects = async (req, res) => {
       {
         _id: 1,
         project_name: 1,
-        project_details:1,
+        project_details: 1,
+        project_links: 1,
+        project_tags:1,
       }
     );
     return res.status(200).send({ success: true, projects });
