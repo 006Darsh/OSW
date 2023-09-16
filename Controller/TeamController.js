@@ -14,7 +14,7 @@ exports.AddTeamMember = async (req, res) => {
     });
   }
   try {
-    const { name, bio, post, social_links } = req.body;
+    const { name, bio, team, post, social_links } = req.body;
     const fileUrl = req.fileUrl;
     if (!fileUrl) {
       return res
@@ -32,8 +32,9 @@ exports.AddTeamMember = async (req, res) => {
       name,
       bio,
       post,
+      team,
       social_links,
-      pic:fileUrl,
+      pic: fileUrl,
       added_by: Id,
     });
     await newTeamMember.save();
@@ -82,6 +83,7 @@ exports.getmemberDetails = async (req, res) => {
       name: member.name,
       bio: member.bio,
       post: member.post,
+      team: member.team,
       social_links: member.social_links,
       pic: member.pic,
     };

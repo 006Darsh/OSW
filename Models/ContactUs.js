@@ -4,8 +4,8 @@ const ContactSchema = mongoose.Schema({
   name: {
     type: String,
   },
-  mobile_no: {
-    type: Number,
+  subject: {
+    type: String,
   },
   email: {
     type: String,

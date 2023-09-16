@@ -10,6 +10,9 @@ const TeamSchema = mongoose.Schema({
   post: {
     type: String,
   },
+  team: {
+    type:String,
+  },
   social_links: [
     {
       type: String,

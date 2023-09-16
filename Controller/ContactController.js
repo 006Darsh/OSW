@@ -2,8 +2,8 @@ const Contact = require("../Models/ContactUs");
 
 exports.ContactUs = async (req, res) => {
   try {
-    const { name, mobile_no, email, message } = req.body;
-    if (!name || !mobile_no || !email || !message) {
+    const { name, subject, email, message } = req.body;
+    if (!name || !subject || !email || !message) {
       return res.status(400).json({
         success: false,
         message: "All details are required!!!",
@@ -11,14 +11,14 @@ exports.ContactUs = async (req, res) => {
     }
     const newMessage = new Contact({
       name,
-      mobile_no,
+      subject,
       email,
       message,
     });
     await newMessage.save();
     return res.status(200).send({
       success: true,
-      team_member: newMessage,
+      message: newMessage,
       message: "Your message was given Successfully",
     });
   } catch (error) {

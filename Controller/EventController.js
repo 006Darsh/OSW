@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const cron = require("node-cron");
 const Event = require("../Models/Event");
 const Speaker = require("../Models/Speaker");
@@ -6,11 +7,13 @@ const {
   AttendeeIncreaseNotification,
 } = require("./NotificationController");
 const User = require("../Models/Users");
+const Admin = require("../Models/Admin");
 
 exports.CreateEvent = async (req, res) => {
   try {
     // const user = req.user;
     const user = await User.find({ _id: req.user._id });
+    const admin = await Admin.find({ _id: req.user._id });
     console.log(user);
     if (req.userType === "user") {
       if (!user[0].profile.first_name && !user[0].profile.last_name) {
@@ -43,7 +46,7 @@ exports.CreateEvent = async (req, res) => {
       event_tags,
       speakers,
     } = req.body;
-    const fileUrl = req.fileUrl;
+    // const fileUrl = req.fileUrl;
     if (req.userType === "user") {
       const newEvent = new Event({
         event_name,
@@ -54,7 +57,7 @@ exports.CreateEvent = async (req, res) => {
         endTime,
         timeZone,
         event_type,
-        event_poster: fileUrl,
+        // event_poster: fileUrl,
         meet_link,
         address,
         "location.city": city,
@@ -84,7 +87,7 @@ exports.CreateEvent = async (req, res) => {
         });
       }
     }
-
+    console.log(admin[0]._id);
     const newEvent = new Event({
       event_name,
       event_description,
@@ -94,19 +97,19 @@ exports.CreateEvent = async (req, res) => {
       endTime,
       timeZone,
       event_type,
-      event_poster: fileUrl,
+      // event_poster: fileUrl,
       meet_link,
       address,
-      "location.city":city,
-      "location.state":state,
-      "location.country":country,
-      "location.pincode":pincode,
+      "location.city": city,
+      "location.state": state,
+      "location.country": country,
+      "location.pincode": pincode,
       // location,
       limit,
       socialmedia_links,
       event_goals,
       event_tags,
-      hosted_by_admin: user._id,
+      hosted_by_admin: admin[0]._id,
       speakers,
     });
     const createdEvent = await newEvent.save();
@@ -183,8 +186,8 @@ exports.GetEvents = async (req, res) => {
     });
     console.log(eventsData);
     return res.status(200).json({ success: true, eventsData });
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
@@ -252,6 +255,10 @@ exports.GetEventById = async (req, res) => {
       path: "hosted_by_user",
       select: "profile.first_name profile.last_name profile.profile_pic",
     });
+    // .populate({
+    //   path: "speakers",
+    //   select: "name",
+    // });
     // } else {
     //   event = await Event.findById(eventId).populate({
     //     path: "hosted_by_admin",
@@ -268,6 +275,7 @@ exports.GetEventById = async (req, res) => {
     if (event.hosted_by_user) {
       const eventData = {
         ...event._doc,
+
         hosted_by_user:
           event.hosted_by_user.profile.first_name +
           " " +
@@ -278,11 +286,13 @@ exports.GetEventById = async (req, res) => {
     } else {
       const eventData = {
         ...event._doc,
+        speakers: eventSpeakers,
         hosted_by_admin: "admin",
       };
       res.status(200).json({ success: true, eventData });
     }
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error." });
@@ -389,7 +399,12 @@ exports.UpdateEvent = async (req, res) => {
       content += `- Address: ${event.address} -> ${address}\n`;
       event.address = address;
     }
-    if (city !== event.city || state !== event.state ||country !== event.country || pincode !== event.pincode) {
+    if (
+      city !== event.city ||
+      state !== event.state ||
+      country !== event.country ||
+      pincode !== event.pincode
+    ) {
       event.location.city = city;
       event.location.state = state;
       event.location.country = country;

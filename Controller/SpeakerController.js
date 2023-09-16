@@ -99,12 +99,22 @@ exports.getallSpeakers = async (req, res) => {
 exports.getspeakerDetails = async (req, res) => {
   try {
     const speakerId = req.params.id;
-    const speaker = await Speaker.findById(speakerId);
+    const speaker = await Speaker.findById(speakerId).populate({
+      path: "sessions",
+      select: "event_name",
+    });
     if (!speaker) {
       return res
         .status(404)
         .json({ success: false, message: "Speaker not found." });
     }
+
+    // Extract event names from the populated sessions
+    const eventSessions = speaker.sessions.map((session) => ({
+      _id: session._id,
+      event_name: session.event_name,
+    }));
+
     const responseData = {
       name: speaker.name,
       post: speaker.post,
@@ -112,7 +122,7 @@ exports.getspeakerDetails = async (req, res) => {
       location: speaker.location,
       about: speaker.about,
       social_links: speaker.social_links,
-      sessions: speaker.sessions,
+      sessions: eventSessions, // Replace with the extracted event names
       pic: speaker.pic,
     };
     res.status(200).json({
@@ -120,9 +130,11 @@ exports.getspeakerDetails = async (req, res) => {
       data: responseData,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
 
 exports.deleteSpeaker = async (req, res) => {
   try {
