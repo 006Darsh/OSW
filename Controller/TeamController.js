@@ -1,26 +1,23 @@
 const Admin = require("../Models/Admin");
 const Team = require("../Models/Team");
 
+
 exports.AddTeamMember = async (req, res) => {
-  const Id = req.user._id;
-  const admin = await Admin.findOne({ _id: Id });
-  if (req.userType !== "admin") {
-    return res.status(401).send({ success: false, message: "Not Authorized." });
-  }
-  if (!admin) {
-    return res.status(400).send({
-      success: false,
-      message: "Admin account not found.",
-    });
-  }
+  const adminId = req.user._id;
+
   try {
-    const { name, bio, team, post, social_links } = req.body;
+    // Assuming 'req.body' contains the necessary data including image file
+    const { name, bio, post, social_links } = req.body;
+
+    // Assuming 'req.fileUrl' contains the URL of the uploaded image
     const fileUrl = req.fileUrl;
+    console.log(fileUrl);
     if (!fileUrl) {
       return res
         .status(400)
         .json({ success: false, message: "No file uploaded" });
     }
+
     if (!name || !bio || !post || !social_links) {
       return res.status(400).json({
         success: false,
@@ -32,12 +29,13 @@ exports.AddTeamMember = async (req, res) => {
       name,
       bio,
       post,
-      team,
       social_links,
-      pic: fileUrl,
-      added_by: Id,
+      pic: fileUrl, // Saving the image URL
+      added_by: adminId,
     });
+
     await newTeamMember.save();
+
     return res.status(200).send({
       success: true,
       team_member: newTeamMember,
@@ -51,6 +49,7 @@ exports.AddTeamMember = async (req, res) => {
     });
   }
 };
+
 
 exports.getallTeamMembers = async (req, res) => {
   try {

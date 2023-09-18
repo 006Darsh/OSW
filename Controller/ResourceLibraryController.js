@@ -1,20 +1,34 @@
+const Admin = require("../Models/Admin");
 const Resource = require("../Models/ResouceLibrary");
 const { NotifyUsersProjects } = require("./NotificationController");
 
 exports.AddProject = async (req, res) => {
+  const Id = req.user._id;
+  const admin = await Admin.findOne({ _id: Id });
+
+  if (req.userType !== "admin") {
+    return res.status(401).send({ success: false, message: "Not Authorized." });
+  }
+  if (!admin) {
+    return res.status(400).send({
+      success: false,
+      message: "Admin account not found.",
+    });
+  }
   try {
-    const { project_name, project_details, project_links, project_tags } =
-      req.body;
-    if (req.userType !== "admin") {
-      return res
-        .status(401)
-        .send({ success: false, message: "Not Authorized." });
-    }
+    // const { project_name, project_details, project_links, project_tags } =
+    //   req.body;
+    const projectTags = req.body.project_tags; // Array of project tags
+    const projectName = req.body.project_name; // Array of project tags
+    const projectDetails = req.body.project_details; // Array of project tags
+    const projectLinks = req.body.project_links; // Array of project links
+
+    console.log(projectName, projectDetails, projectTags, projectLinks);
     const newProject = new Resource({
-      project_name,
-      project_details,
-      project_links,
-      project_tags,
+      project_name: projectName,
+      project_details: projectDetails,
+      project_links: projectLinks,
+      project_tags: projectTags,
     });
     const createdProject = await newProject.save();
     if (createdProject) {
@@ -44,7 +58,7 @@ exports.GetProjects = async (req, res) => {
         project_name: 1,
         project_details: 1,
         project_links: 1,
-        project_tags:1,
+        project_tags: 1,
       }
     );
     return res.status(200).send({ success: true, projects });

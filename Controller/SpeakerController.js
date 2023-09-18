@@ -43,7 +43,7 @@ exports.AddSpeakers = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "All details are required to add a team member !!!",
+        message: "All details are required to add a speaker !!!",
       });
     }
 
@@ -55,7 +55,7 @@ exports.AddSpeakers = async (req, res) => {
       "location.state": state,
       "location.pincode": pincode,
       about,
-      social_links,
+      social_links  ,
       pic: fileUrl,
       added_by: Id,
     });

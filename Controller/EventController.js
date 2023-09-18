@@ -275,7 +275,6 @@ exports.GetEventById = async (req, res) => {
     if (event.hosted_by_user) {
       const eventData = {
         ...event._doc,
-
         hosted_by_user:
           event.hosted_by_user.profile.first_name +
           " " +
