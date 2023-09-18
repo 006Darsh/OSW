@@ -1,6 +1,6 @@
 const Admin = require("../Models/Admin");
 const Resource = require("../Models/ResouceLibrary");
-const { NotifyUsersProjects } = require("./NotificationController");
+const { NotifyUsersProjects, NotifyUsersEvent } = require("./NotificationController");
 
 exports.AddProject = async (req, res) => {
   const Id = req.user._id;
@@ -140,17 +140,20 @@ exports.UpdateProject = async (req, res) => {
 };
 
 exports.DeleteProject = async (req, res) => {
-  if (req.usertype !== admin) {
+  if (req.userType !== "admin") {
+    console.log(1);
     return res.status(401).send({ success: false, message: "Not Authorized." });
   }
   try {
     const projectId = req.params.id;
-    const deletedProject = await Resource.findByIdAndDelete(projectId);
-    if (!deletedProject) {
+    const Project = await Resource.findById(projectId);
+    if (!Project) {
+      console.log(1);
       return res
-        .status(400)
-        .json({ success: false, message: "Project not found" });
+      .status(400)
+      .json({ success: false, message: "Project not found" });
     }
+    const deletedProject = await Resource.findByIdAndDelete(projectId);
     if (deletedProject) {
       const title = "A Project is deleted";
       let content = `The Project ${deletedProject.project_name} has been deleted by the admin.`;
@@ -160,7 +163,7 @@ exports.DeleteProject = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Project deleted successfully" });
   } catch (error) {
-    console.log(err);
+    console.log(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error.", error });
