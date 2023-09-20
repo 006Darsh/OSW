@@ -43,7 +43,6 @@ node_modules/
 jspm_packages/
 .env/
 uploads/pics/*
-uploads/p/*
 uploads/blog/*
 uploads/event/*
 uploads/teams_pic/*
