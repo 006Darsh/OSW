@@ -29,7 +29,7 @@ const EventSchema = mongoose.Schema({
   event_type: {
     type: String,
     enum: ["Online", "Offline"],
-    required: true,
+    // required: true,
   },
   meet_link: {
     type: String,

@@ -1,4 +1,4 @@
-const Blog = require("../Models/Blog");
+  const Blog = require("../Models/Blog");
 const Event = require("../Models/Event");
 const User = require("../Models/Users");
 const fs = require("fs");
@@ -52,6 +52,7 @@ exports.getUserProfile = async (req, res) => {
         first_name: user.profile.first_name,
         last_name: user.profile.last_name,
       },
+      contact_no: user.contact_no,
       is_verified: user.verified,
     };
     res.status(200).json({

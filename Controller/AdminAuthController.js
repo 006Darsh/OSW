@@ -23,27 +23,18 @@ exports.AddAdmin = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
     // Save the admin data to the Admin schema
     const newAdmin = new Admin({
       email: email,
-      password: hashedPassword,
+      password: password,
     });
 
     await newAdmin.save();
 
-    const payload = {
-      _id: newAdmin._id,
-      email: newAdmin.email,
-      password: newAdmin.password,
-      type: "admin",
-    };
-
-    const authToken = genToken(payload);
-
     res.status(200).send({
       success: true,
-      result: authToken,
+      message:"Adim added Successfully",
       _id: newAdmin._id,
       email: newAdmin.email,
       type: "admin",

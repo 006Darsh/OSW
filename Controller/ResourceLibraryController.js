@@ -1,6 +1,9 @@
 const Admin = require("../Models/Admin");
 const Resource = require("../Models/ResouceLibrary");
-const { NotifyUsersProjects, NotifyUsersEvent } = require("./NotificationController");
+const {
+  NotifyUsersProjects,
+  NotifyUsersEvent,
+} = require("./NotificationController");
 
 exports.AddProject = async (req, res) => {
   const Id = req.user._id;
@@ -101,7 +104,7 @@ exports.UpdateProject = async (req, res) => {
     const { project_name, project_details, project_links, project_tags } =
       req.body;
     let project;
-    if (req.usertype === "admin") {
+    if (req.userType === "admin") {
       project = await Resource.findById(projectId);
     } else {
       return res
@@ -110,7 +113,7 @@ exports.UpdateProject = async (req, res) => {
     }
     let content = `The Project "${project.project_name}" has been updated. Changes include:\n`;
     if (project_name !== project.project_name) {
-      content += `- Project Name: ${Project.project_name} -> ${project_name}\n`;
+      content += `- Project Name: ${project.project_name} -> ${project_name}\n`;
       project.project_name = project_name;
     }
     if (project_details !== project.project_details) {
@@ -126,6 +129,7 @@ exports.UpdateProject = async (req, res) => {
     }
     project.updatedAt = Date.now();
     const updatedProject = await project.save();
+    console.log(updatedProject);
     if (updatedProject) {
       const title = "A project is updated";
       content += "\nCheck it out now!";
@@ -133,6 +137,7 @@ exports.UpdateProject = async (req, res) => {
     }
     return res.status(200).json({ success: true, updatedProject });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error.", error });
@@ -150,8 +155,8 @@ exports.DeleteProject = async (req, res) => {
     if (!Project) {
       console.log(1);
       return res
-      .status(400)
-      .json({ success: false, message: "Project not found" });
+        .status(400)
+        .json({ success: false, message: "Project not found" });
     }
     const deletedProject = await Resource.findByIdAndDelete(projectId);
     if (deletedProject) {

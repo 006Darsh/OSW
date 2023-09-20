@@ -24,28 +24,26 @@ exports.CreateEvent = async (req, res) => {
         });
       }
     }
-    const {
-      event_name,
-      event_description,
-      language,
-      event_date,
-      startTime,
-      endTime,
-      timeZone,
-      event_type,
-      meet_link,
-      address,
-      city,
-      state,
-      country,
-      pincode,
-      // location,
-      limit,
-      socialmedia_links,
-      event_goals,
-      event_tags,
-      speakers,
-    } = req.body;
+    const event_name = req.body.event_name;
+    const event_description = req.body.event_description;
+    const language = req.body.language;
+    const event_date = req.body.event_date;
+    const startTime = req.body.startTime;
+    const endTime = req.body.endTime;
+    const timeZone = req.body.timeZone;
+    const event_type = req.body.event_type;
+    const meet_link = req.body.meet_link;
+    const address = req.body.address;
+    const city = req.body.city;
+    const state = req.body.state;
+    const country = req.body.country;
+    const pincode = req.body.pincode;
+    const limit = req.body.limit;
+    const socialmedia_links = req.body.socialmedia_links;
+    const event_goals = req.body.event_goals;
+    const event_tags = req.body.event_tags;
+    const speakers = req.body.speakers;
+
     // const fileUrl = req.fileUrl;
     if (req.userType === "user") {
       const newEvent = new Event({
@@ -86,6 +84,7 @@ exports.CreateEvent = async (req, res) => {
           Event: createdEvent,
         });
       }
+      // console.log(event_name[0]);
     }
     console.log(admin[0]._id);
     const newEvent = new Event({
@@ -184,7 +183,7 @@ exports.GetEvents = async (req, res) => {
       }
       return eventData;
     });
-    console.log(eventsData);
+    // console.log(eventsData);
     return res.status(200).json({ success: true, eventsData });
   } catch (error) {
     console.error(error);
@@ -237,7 +236,6 @@ exports.GetPersonalEvents = async (req, res) => {
       eventData.hosted_by_admin = "admin";
       return eventData;
     });
-    console.log(eventsData);
     return res.status(200).json({ success: true, eventsData });
   } catch (err) {
     console.error(err);

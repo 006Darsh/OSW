@@ -7,8 +7,8 @@ const {
 const AuthMiddleware = require("../Middlewares/AuthMiddleware");
 
 const VerifyRoutes = (app) => {
-  app.post("user/email-verification/sendotp", AuthMiddleware, UserSendOtp);
-  app.post("user/email-verification/verify", AuthMiddleware, UserVerification);
+  app.post("/user/email-verification/sendotp", AuthMiddleware, UserSendOtp);
+  app.post("/user/email-verification/verify", AuthMiddleware, UserVerification);
 };
 
 module.exports = VerifyRoutes;
