@@ -18,6 +18,7 @@ exports.GetUserNotification = async (req, res) => {
         _id: 1,
         content: 1,
         timestamp: 1,
+        link: 1,
         recipients: { $elemMatch: { recipient: id } },
       }
     );
@@ -31,6 +32,7 @@ exports.GetUserNotification = async (req, res) => {
     const readStatus = notifications.map((notification) => ({
       _id: notification._id,
       content: notification.content,
+      link: notification.link,
       timestamp: notification.timestamp,
       read: notification.recipients[0].read,
     }));
