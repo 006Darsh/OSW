@@ -23,14 +23,9 @@ exports.AddSpeakers = async (req, res) => {
       state,
       pincode,
       about,
+      pic,
       social_links,
     } = req.body;
-    const fileUrl = req.fileUrl;
-    if (!fileUrl) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No file uploaded" });
-    }
     if (
       !name ||
       !post ||
@@ -39,6 +34,7 @@ exports.AddSpeakers = async (req, res) => {
       !city ||
       !state ||
       !pincode ||
+      !pic ||
       !about
     ) {
       return res.status(400).json({
@@ -56,7 +52,7 @@ exports.AddSpeakers = async (req, res) => {
       "location.pincode": pincode,
       about,
       social_links  ,
-      pic: fileUrl,
+      pic: pic,
       added_by: Id,
     });
     await newSpeaker.save();

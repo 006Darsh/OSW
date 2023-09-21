@@ -13,7 +13,7 @@ const AdminRoutes = (app) => {
   app.post(
     "/admin/add-teammember",
     AuthMiddleware,
-    picUploaderMiddleware,
+    // picUploaderMiddleware,
     AddTeamMember
   );
 

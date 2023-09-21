@@ -53,7 +53,7 @@ const fileUploaderMiddleware = (fileType) => {
           .status(400)
           .json({ success: false, message: "No file uploaded!!" });
       }
-
+      console.log(directory);
       const fileUrl = `http://localhost:4000/${directory}/${req.file.filename}`;
       req.fileUrl = fileUrl;
       next();

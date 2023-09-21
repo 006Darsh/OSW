@@ -11,7 +11,7 @@ const SpeakerRoutes = (app) => {
   app.post(
     "/admin/add-speaker",
     AuthMiddleware,
-    picUploaderMiddleware,
+    // picUploaderMiddleware,
     AddSpeakers
   );
   app.get("/speaker/all-details/:id", getspeakerDetails);

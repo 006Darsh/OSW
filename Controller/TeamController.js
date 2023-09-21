@@ -6,18 +6,11 @@ exports.AddTeamMember = async (req, res) => {
 
   try {
     // Assuming 'req.body' contains the necessary data including image file
-    const { name, bio, post, social_links } = req.body;
+    const { name, bio, post, social_links, pics, team } = req.body;
 
     // Assuming 'req.fileUrl' contains the URL of the uploaded image
-    const fileUrl = req.fileUrl;
-    console.log(fileUrl);
-    if (!fileUrl) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No file uploaded" });
-    }
 
-    if (!name || !bio || !post || !social_links) {
+    if (!name || !bio || !post || !social_links || !pics) {
       return res.status(400).json({
         success: false,
         message: "All details are required to add a team member !!!",
@@ -28,8 +21,9 @@ exports.AddTeamMember = async (req, res) => {
       name,
       bio,
       post,
+      team,
       social_links,
-      pic: fileUrl, // Saving the image URL
+      pic: pics, // Saving the image URL
       added_by: adminId,
     });
 

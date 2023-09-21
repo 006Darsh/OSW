@@ -36,6 +36,7 @@ exports.CreateEvent = async (req, res) => {
     const address = req.body.address;
     const city = req.body.city;
     const state = req.body.state;
+    const pic = req.body.pic;
     const country = req.body.country;
     const pincode = req.body.pincode;
     const limit = req.body.limit;
@@ -55,7 +56,7 @@ exports.CreateEvent = async (req, res) => {
         endTime,
         timeZone,
         event_type,
-        // event_poster: fileUrl,
+        event_poster: pic,
         meet_link,
         address,
         "location.city": city,
@@ -96,7 +97,7 @@ exports.CreateEvent = async (req, res) => {
       endTime,
       timeZone,
       event_type,
-      // event_poster: fileUrl,
+      event_poster: pic,
       meet_link,
       address,
       "location.city": city,

@@ -1,16 +1,18 @@
-  const Blog = require("../Models/Blog");
+const Blog = require("../Models/Blog");
 const Event = require("../Models/Event");
 const User = require("../Models/Users");
 const fs = require("fs");
 exports.AddUserProfile = async (req, res) => {
   try {
     const UserId = req.user._id;
-    const { user_name, first_name, last_name, email, contact_no } = req.body;
+    const { user_name, first_name, last_name, email, contact_no, pic } =
+      req.body;
     let updatedFields = {
       user_name,
       email,
       "profile.first_name": first_name,
       "profile.last_name": last_name,
+      "profile.profile_pic": pic,
       contact_no,
     };
     const user = await User.findByIdAndUpdate(
@@ -51,6 +53,7 @@ exports.getUserProfile = async (req, res) => {
       profile: {
         first_name: user.profile.first_name,
         last_name: user.profile.last_name,
+        pic: user.profile.profile_pic,
       },
       contact_no: user.contact_no,
       is_verified: user.verified,
