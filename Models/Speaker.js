@@ -29,8 +29,12 @@ const SpeakerSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin",
   },
+  updated_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin",
+  },
   pic: {
-    type:String,
+    type: String,
   },
 });
 

@@ -51,7 +51,7 @@ exports.AddSpeakers = async (req, res) => {
       "location.state": state,
       "location.pincode": pincode,
       about,
-      social_links  ,
+      social_links,
       pic: pic,
       added_by: Id,
     });
@@ -131,7 +131,6 @@ exports.getspeakerDetails = async (req, res) => {
   }
 };
 
-
 exports.deleteSpeaker = async (req, res) => {
   try {
     const userType = req.userType;
@@ -146,7 +145,7 @@ exports.deleteSpeaker = async (req, res) => {
     await Event.updateMany(
       { speakers: _id },
       {
-        $pull: { speakers: _id }
+        $pull: { speakers: _id },
       }
     );
     const speaker = await Speaker.findOne({ _id });
@@ -165,5 +164,74 @@ exports.deleteSpeaker = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+exports.UpdateSpeaker = async (req, res) => {
+  const Id = req.user._id;
+  try {
+    const speakerId = req.params.id;
+    const {
+      name,
+      post,
+      university,
+      city,
+      state,
+      pincode,
+      about,
+      pic,
+      social_links,
+    } = req.body;
+    let speaker;
+    if (req.userType === "admin") {
+      speaker = await Speaker.findById(speakerId);
+    } else {
+      return res
+        .status(401)
+        .send({ success: false, message: "Not Authorized." });
+    }
+    if (name !== speaker.name) {
+      speaker.name = name;
+    }
+
+    if (post !== speaker.post) {
+      speaker.post = post;
+    }
+
+    if (university !== speaker.university) {
+      speaker.university = university;
+    }
+
+    if (city !== speaker.city) {
+      speaker.city = city;
+    }
+
+    if (state !== speaker.state) {
+      speaker.state = state;
+    }
+
+    if (pincode !== speaker.pincode) {
+      speaker.pincode = pincode;
+    }
+
+    if (about !== speaker.about) {
+      speaker.about = about;
+    }
+
+    if (pic !== speaker.pic) {
+      speaker.pic = pic;
+    }
+
+    if (social_links !== speaker.social_links) {
+      speaker.social_links = social_links;
+    }
+    speaker.updated_by = Id;
+    const updatedSpeaker = await speaker.save();
+    return res.status(200).json({ success: true, updatedSpeaker });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error.", error });
   }
 };

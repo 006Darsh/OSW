@@ -3,11 +3,10 @@ const {
   getallTeamMembers,
   getmemberDetails,
   deleteTeam,
+  UpdateTeam,
 } = require("../Controller/TeamController");
 
 const AuthMiddleware = require("../Middlewares/AuthMiddleware");
-const fileUploaderMiddleware = require("../Middlewares/fileUploaderMiddleware");
-const picUploaderMiddleware = fileUploaderMiddleware("team");
 
 const AdminRoutes = (app) => {
   app.post(
@@ -16,8 +15,7 @@ const AdminRoutes = (app) => {
     // picUploaderMiddleware,
     AddTeamMember
   );
-
-  // app.get("/user/profile-pic/:id",);
+  app.put("/team/update-team/:id", AuthMiddleware, UpdateTeam);
   app.get("/team-member/all-details/:id", getmemberDetails);
   app.get("/all-team-members", getallTeamMembers);
   app.delete("/delete/team-member/:id", AuthMiddleware, deleteTeam);

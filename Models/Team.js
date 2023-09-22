@@ -11,7 +11,7 @@ const TeamSchema = mongoose.Schema({
     type: String,
   },
   team: {
-    type:String,
+    type: String,
   },
   social_links: [
     {
@@ -19,6 +19,10 @@ const TeamSchema = mongoose.Schema({
     },
   ],
   added_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin",
+  },
+  updated_by: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin",
   },

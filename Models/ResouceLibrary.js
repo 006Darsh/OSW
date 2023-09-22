@@ -10,7 +10,7 @@ const resourceLibrarySchema = mongoose.Schema({
   project_links: {
     type: String,
   },
-  project_tags: [{ type: String }],
+  project_tags: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

@@ -409,7 +409,9 @@ exports.UpdateEvent = async (req, res) => {
       event.location.pincode = pincode;
       content += `- Location: ${JSON.stringify(
         event.location
-      )} -> ${JSON.stringify(location)}\n`;
+      )} -> ${JSON.stringify(city)},${JSON.stringify(state)},${JSON.stringify(
+        country
+      )}-${JSON.stringify(pincode)}\n`;
       event.meet_link = "";
     }
     if (limit !== event.limit) {
@@ -456,6 +458,7 @@ exports.UpdateEvent = async (req, res) => {
     };
     return res.status(200).json({ success: true, eventData });
   } catch (err) {
+    console.log(err);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error." });
@@ -516,6 +519,7 @@ exports.AttendEvent = async (req, res) => {
 
         if (event) {
           const newTotalAttendees = event.attendees.length;
+          event.limit = event.limit - 1;
           event.total_attendees = newTotalAttendees;
           if (
             event.total_attendees / 20 !== event.attendees_check / 20 ||

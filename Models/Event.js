@@ -33,9 +33,6 @@ const EventSchema = mongoose.Schema({
   },
   meet_link: {
     type: String,
-    required: function () {
-      return this.event_type === "Online";
-    },
   },
   address: {
     type: String,

@@ -114,3 +114,50 @@ exports.deleteTeam = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
+exports.UpdateTeam = async (req, res) => {
+  const Id = req.user._id;
+  try {
+    const teammemberId = req.params.id;
+    const { name, bio, post, social_links, pics, team } = req.body;
+
+    let teams;
+    if (req.userType === "admin") {
+      teams = await Team.findById(teammemberId);
+    } else {
+      return res
+        .status(401)
+        .send({ success: false, message: "Not Authorized." });
+    }
+    if (name !== teams.name) {
+      teams.name = name;
+    }
+
+    if (bio !== teams.bio) {
+      teams.bio = bio;
+    }
+
+    if (post !== teams.post) {
+      teams.post = post;
+    }
+
+    if (social_links !== teams.social_links) {
+      teams.social_links = social_links;
+    }
+
+    if (pics !== teams.pic) {
+      teams.pic = pics;
+    }
+    if (team !== teams.team) {
+      teams.team = team;
+    }
+    teams.updated_by = Id;
+    const updatedTeam = await teams.save();
+    return res.status(200).json({ success: true, updatedTeam });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error.", error });
+  }
+};
