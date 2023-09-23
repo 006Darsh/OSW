@@ -33,7 +33,7 @@ exports.AddAdmin = async (req, res) => {
 
     res.status(200).send({
       success: true,
-      message:"Adim added Successfully",
+      message: "Adim added Successfully",
       _id: newAdmin._id,
       email: newAdmin.email,
       type: "admin",
@@ -58,7 +58,7 @@ exports.AdminLogin = async (req, res) => {
       });
     }
     // Compare the password from the request with the encrypted password stored in the database
-    // const isPasswordMatch = await bcrypt.compare(password, admin.password);
+    const isPasswordMatch = password === admin.password ? true : false;
 
     if (isPasswordMatch) {
       // Passwords match, generate token and send the response
