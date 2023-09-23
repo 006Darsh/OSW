@@ -253,6 +253,7 @@ const NotifyEventDeadline = async (req, res) => {
       const newNotification = new Notification({
         content: `This Event "${event.event_name}" will be happening after 5 days from today register for it fast as the registration will be open for next 3 days only.`,
         recipients: recipients,
+        link: `/event/details/${event._id}`,
       });
 
       await newNotification.save();
@@ -293,6 +294,7 @@ const RegisteredEventRemainder = async (req, res) => {
       const newNotification = new Notification({
         content: `The Event "${event.event_name}" will be happening tomorrow and you have registered for it so be prepared for this evnet!`,
         recipients: recipients,
+        link: `/event/details/${event._id}`,
       });
 
       await newNotification.save();
@@ -309,6 +311,7 @@ exports.AttendeeIncreaseNotification = async (attendees, event) => {
     const newNotification = new Notification({
       content: `Congratulations your event "${event.event_name}" now has ${attendees} attendees.`,
       recipients: recipitents,
+      link: `/event/details/${event._id}`,
     });
 
     await newNotification.save();
@@ -370,7 +373,7 @@ const CreateNotificationProjects = async (users, project, content) => {
     const newNotification = new Notification({
       content: content,
       recipients: recipients,
-      link: `/project/details/${project._id}`,
+      link: `/resourceLibrary`,
     });
 
     await newNotification.save();

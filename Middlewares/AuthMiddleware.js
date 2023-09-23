@@ -5,7 +5,6 @@ const Admin = require("../Models/Admin");
 
 module.exports = async (req, res, next) => {
   const token = req.header("authorization");
-
   if (!token) {
     return res
       .status(401)

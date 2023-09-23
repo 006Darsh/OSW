@@ -5,16 +5,16 @@ exports.GetBlogById = async (req, res) => {
 
   try {
     let blog;
-    if (req.userType === "user") {
-      blog = await Blog.findById(blogId).populate({
-        path: "user_author",
-        select: "profile.first_name profile.last_name profile.profile_pic",
-      });
-    } else {
-      blog = await Blog.findById(blogId).populate({
-        path: "admin_author",
-      });
-    }
+    // if (req.userType === "user") {
+    blog = await Blog.findById(blogId).populate({
+      path: "user_author",
+      select: "profile.first_name profile.last_name profile.profile_pic",
+    });
+    // } else {
+    //   blog = await Blog.findById(blogId).populate({
+    //     path: "admin_author",
+    //   });
+    // }
 
     if (!blog) {
       console.warn("here");
@@ -23,7 +23,8 @@ exports.GetBlogById = async (req, res) => {
         .json({ success: false, message: "Blog not found !!" });
     }
 
-    if (req.userType === "user") {
+    if (blog.user_author) {
+      console.log(blog);
       const blogData = {
         ...blog._doc,
         user_author:
@@ -32,13 +33,13 @@ exports.GetBlogById = async (req, res) => {
           blog.user_author.profile.last_name,
         profile_pic: blog.user_author.profile.profile_pic,
       };
-      res.status(200).json({ success: true, blogData });
+      return res.status(200).json({ success: true, blogData });
     } else {
       const blogData = {
         ...blog._doc,
         admin_author: "admin",
       };
-      res.status(200).json({ success: true, blogData });
+      return res.status(200).json({ success: true, blogData });
     }
   } catch (error) {
     return res
@@ -105,16 +106,16 @@ exports.GetPersonalBlogs = async (req, res) => {
 exports.GetBlogs = async (req, res) => {
   try {
     let blogs;
-    if (req.userType === "user") {
-      blogs = await Blog.find().populate({
-        path: "user_author",
-        select: "profile.first_name profile.last_name profile.profile_pic",
-      });
-    } else {
-      blogs = await Blog.find().populate({
-        path: "admin_author",
-      });
-    }
+    // if (req.userType === "user") {
+    blogs = await Blog.find().populate({
+      path: "user_author",
+      select: "profile.first_name profile.last_name profile.profile_pic",
+    });
+    // } else {
+    //   blogs = await Blog.find().populate({
+    //     path: "admin_author",
+    //   });
+    // }
 
     if (!blogs) {
       return res

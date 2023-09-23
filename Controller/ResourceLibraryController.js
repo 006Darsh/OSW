@@ -122,7 +122,7 @@ exports.UpdateProject = async (req, res) => {
     }
     if (project_tags !== project.project_tags) {
       content += `- Project Tags: ${project.project_tags} -> ${project_tags}\n`;
-      project.project_details = project_details;
+      project.project_tags = project_tags;
     }
     if (project_links !== project.project_links) {
       project.project_links = project_links;

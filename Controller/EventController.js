@@ -280,14 +280,14 @@ exports.GetEventById = async (req, res) => {
           event.hosted_by_user.profile.last_name,
         profile_pic: event.hosted_by_user.profile.profile_pic,
       };
-      res.status(200).json({ success: true, eventData });
+      return res.status(200).json({ success: true, eventData });
     } else {
       const eventData = {
         ...event._doc,
         // speakers: eventSpeakers,
         hosted_by_admin: "admin",
       };
-      res.status(200).json({ success: true, eventData });
+      return res.status(200).json({ success: true, eventData });
     }
   } catch (error) {
     console.log(error);
@@ -321,6 +321,7 @@ exports.UpdateEvent = async (req, res) => {
       socialmedia_links,
       event_goals,
       event_tags,
+      speakers,
     } = req.body;
     const fileUrl = req.fileUrl;
     // if (!title || !content) {
@@ -433,6 +434,32 @@ exports.UpdateEvent = async (req, res) => {
         event.event_tags
       )} -> ${JSON.stringify(event_tags)}\n`;
       event.event_tags = event_tags;
+    }
+    if (speakers !== event.speakers) {
+      // content += `- Event Tags: ${JSON.stringify(
+      //   event.event_tags
+      // )} -> ${JSON.stringify(event_tags)}\n`;
+      await Speaker.updateMany(
+        { sessions: eventId }, // Specify the condition to find documents with the eventId in the sessions array
+        { $pull: { sessions: eventId } } // Use $pull to remove the eventId from the sessions array
+      );
+      for (const s of speakers) {
+        try {
+          console.log(s);
+          const speakerId = s;
+          const updatedSpeaker = await Speaker.findOneAndUpdate(
+            { _id: speakerId },
+            { $push: { sessions: eventId } }
+          );
+
+          if (!updatedSpeaker) {
+            console.error(`Speaker with ID ${speakerId} not found.`);
+          }
+        } catch (error) {
+          console.error(`Error updating speaker: ${error}`);
+        }
+      }
+      event.speakers = speakers;
     }
 
     event.updatedAt = Date.now();

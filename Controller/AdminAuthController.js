@@ -7,7 +7,6 @@ exports.AddAdmin = async (req, res) => {
   try {
     const adminId = req.user._id;
     const admin = await Admin.findOne({ _id: adminId });
-    console.log(admin);
     if (!admin.superadmin) {
       return res
         .status(401)
