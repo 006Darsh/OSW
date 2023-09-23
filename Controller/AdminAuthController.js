@@ -58,7 +58,7 @@ exports.AdminLogin = async (req, res) => {
       });
     }
     // Compare the password from the request with the encrypted password stored in the database
-    const isPasswordMatch = await bcrypt.compare(password, admin.password);
+    // const isPasswordMatch = await bcrypt.compare(password, admin.password);
 
     if (isPasswordMatch) {
       // Passwords match, generate token and send the response
