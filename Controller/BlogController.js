@@ -124,33 +124,28 @@ exports.GetBlogs = async (req, res) => {
     }
 
     // console.log(blogs[0].author);
-    if (req.userType === "user") {
-      const blogsData = blogs.map((blog) => {
-        const blogData = {
-          ...blog._doc,
-        };
-
-        if (blog.user_author) {
-          blogData.user_author =
-            blog.user_author.profile.first_name +
-            " " +
-            blog.user_author.profile.last_name;
-          blogData.profile_pic = blog.user_author.profile.profile_pic;
-        }
-        return blogData;
-      });
-      return res.status(200).json({ success: true, blogsData });
-    }
     const blogsData = blogs.map((blog) => {
       const blogData = {
         ...blog._doc,
       };
-      if (blog.admin_author) {
-        blogData.admin_author = "admin";
+
+      if (blog.user_author) {
+        blogData.user_author =
+          blog.user_author.profile.first_name +
+          " " +
+          blog.user_author.profile.last_name;
+        blogData.profile_pic = blog.user_author.profile.profile_pic;
+        return blogData;
+      } else {
+        const blogData = {
+          ...blog._doc,
+        };
+        if (blog.admin_author) {
+          blogData.admin_author = "admin";
+        }
+        return blogData;
       }
-      return blogData;
     });
-    console.log(blogsData);
     return res.status(200).json({ success: true, blogsData });
   } catch (err) {
     console.error(err);
