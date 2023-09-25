@@ -128,7 +128,7 @@ exports.markAllAsRead = async (req, res) => {
 
     await Notification.updateMany(
       { "recipients.recipient": recipientID },
-      { $set: { "recipients.$.read": false } }
+      { $set: { "recipients.$.read": true } }
     );
 
     res.status(200).json({
