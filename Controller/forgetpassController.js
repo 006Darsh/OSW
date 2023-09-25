@@ -142,6 +142,7 @@ exports.OtpLogin = async (req, res) => {
       const payload = {
         _id: admin._id,
         email: admin.email,
+        superadmin: admin.superadmin,
         type: "admin",
       };
 
